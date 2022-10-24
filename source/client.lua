@@ -37,6 +37,34 @@ function loadAnimDict(dict)
     end
 end
 
+function getVehicleBlipSprite(vehicle)
+    local class = GetVehicleClass(vehicle)
+    local model = GetEntityModel(vehicle)
+    local sprite = 225 -- car
+    local classBlip = {
+        [16] = 423, -- plane
+        [8] = 226, -- motorcycle
+        [15] = 64, -- helicopter
+        [14] = 427, -- boat
+        [6] = 825, -- sports
+        [7] = 523, -- super
+        [2] = 821, -- SUV
+        [4] = 663 -- muscle
+    }
+    local typeBlip = {
+        [-1030275036] = 471, -- seashark
+        [-1043459709] = 410 -- marquis
+    }
+
+    if classBlip[class] then
+        sprite = classBlip[class]
+    end
+    if typeBlip[model] then
+        sprite = typeBlip[model]
+    end
+    return sprite
+end
+
 function workerAppearance()
     local handTypes = { -- remmeber test the 1, 2 instead of the 0, 1
         [1] = {0, 1},
@@ -88,13 +116,30 @@ function spawnVehicle(ped, pedCoords, properties)
     local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w, true, false)
     lib.setVehicleProperties(veh, properties)
     SetVehicleOwned(veh, true)
-    garageVehicles[#garageVehicles + 1] = veh
+    garageVehicles[veh] = veh
     SetModelAsNoLongerNeeded(properties.model)
+
+    local blip = AddBlipForEntity(veh)
+    SetBlipSprite(blip, getVehicleBlipSprite(veh))
+    SetBlipColour(blip, 0)
+    SetBlipScale(blip, 0.8)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Personal vehicle")
+    EndTextCommandSetBlipName(blip)
+end
+
+function getLastGarageVeh()
+    local vehicle
+    for _, veh in pairs(garageVehicles) do
+        vehicle = veh
+    end
+    return vehicle
 end
 
 function checkGetVehicle(veh)
     if veh == 0 or not DoesEntityExist(veh) then
-        local garageVehicle = garageVehicles[#garageVehicles]
+        local garageVehicle = getLastGarageVeh()
         if garageVehicle == 0 or not DoesEntityExist(garageVehicle) then
             lib.notify({
                 title = "Error",
@@ -163,7 +208,7 @@ function getVehicles(vehicles)
                     count = count + 1
                     vehid = NetworkGetNetworkIdFromEntity(veh)
                 end
-                garageVehicles[#garageVehicles] = nil
+                garageVehicles[veh] = nil
                 TriggerServerEvent("ND_VehicleSystem:storeVehicle", vehid, properties)
             end
         }
@@ -203,6 +248,23 @@ RegisterNetEvent("ND_VehicleSystem:returnVehicles", function(vehicles)
 end)
 
 CreateThread(function()
+    local inVehcile = false
+    local blip
+    while true do
+        Wait(500)
+        local veh = GetVehiclePedIsIn(ped)
+        if veh ~= 0 and garageVehicles[veh] then
+            inVehcile = true
+            blip = GetBlipFromEntity(veh)
+            SetBlipAlpha(blip, 0)
+        elseif inVehcile then
+            SetBlipAlpha(blip, 255)
+        end
+    end
+end)
+
+CreateThread(function()
+    DecorRegister("ND_OWNED_VEH", 2)
     for _, location in pairs(parkingLocations) do
         local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
         SetBlipSprite(blip, 50)
@@ -213,7 +275,6 @@ CreateThread(function()
         AddTextComponentString("Parking garage")
         EndTextCommandSetBlipName(blip)
     end
-    DecorRegister("ND_OWNED_VEH", 2)
 
     local wait = 500
     while true do
