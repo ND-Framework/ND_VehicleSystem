@@ -42,14 +42,20 @@ RegisterNetEvent("ND_VehicleSystem:storeVehicle", function(vehid, properties)
             DeleteEntity(NetworkGetEntityFromNetworkId(vehid))
             MySQL.query.await("UPDATE vehicles SET properties = ?, stored = ? WHERE plate = ?", {json.encode(properties), 1, properties.plate})
             TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, getVehicles(player.id))
-            break
+            TriggerClientEvent("ox_lib:notify", src, {
+                title = "Success",
+                description = "Vehicle stored in garage.",
+                type = "success",
+                position = "bottom",
+                duration = 3000
+            })
+            return
         end
     end
-    
     TriggerClientEvent("ox_lib:notify", src, {
-        title = "Success",
-        description = "Vehicle stored in garage.",
-        type = "success",
+        title = "Error",
+        description = "No vehicle found.",
+        type = "error",
         position = "bottom",
         duration = 3000
     })
