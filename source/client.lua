@@ -77,6 +77,10 @@ function workerAppearance()
 end
 
 function spawnWorker(location, faceType, faceLook, hands)
+    while not HasModelLoaded(`s_m_y_airworker`) do
+        RequestModel(`s_m_y_airworker`)
+        Wait(100)
+    end
     worker = CreatePed(4, `s_m_y_airworker`, location.x, location.y, location.z - 0.8, location.w, false, false)
 
     SetPedComponentVariation(worker, 0, faceType, faceLook, 0) -- face
@@ -113,7 +117,7 @@ function spawnVehicle(ped, pedCoords, properties)
         Wait(10)
     end
     local spawnLocation = garageLocation.vehicleSpawns[math.random(1, #garageLocation.vehicleSpawns)]
-    local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w, true, false)
+    local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w + (math.random(0, 1) * 180.0), true, false)
     lib.setVehicleProperties(veh, properties)
     SetVehicleOwned(veh, true)
     garageVehicles[veh] = veh
@@ -149,7 +153,7 @@ function checkGetVehicle(veh)
                 duration = 3000
             })
             return
-        elseif #(pedCoords - GetEntityCoords(garageVehicle)) > 50.0 then
+        elseif #(pedCoords - GetEntityCoords(garageVehicle)) > 100.0 then
             lib.notify({
                 title = "Error",
                 description = "Vehicle too far away!",
@@ -158,7 +162,7 @@ function checkGetVehicle(veh)
                 duration = 3000
             })
             return
-        elseif #(pedCoords - GetEntityCoords(garageVehicle)) < 50.0 then
+        elseif #(pedCoords - GetEntityCoords(garageVehicle)) < 100.0 then
             return garageVehicle
         end
         lib.notify({
@@ -182,7 +186,13 @@ function checkGetVehicle(veh)
     return veh
 end
 
-function getVehicles(vehicles)
+function createMenu(vehicles, garageType)
+    local garageTypes = {
+        ["water"] = 14,
+        ["heli"] = 15,
+        ["plane"] = 16
+    }
+    local menuClass = garageTypes[garageType]
     local options = {
         {
             title = "Park vehicle",
@@ -201,6 +211,7 @@ function getVehicles(vehicles)
                     return
                 end
                 local properties = lib.getVehicleProperties(veh)
+                properties.class = GetVehicleClass(veh)
                 local vehid = NetworkGetNetworkIdFromEntity(veh)
                 local count = 0
                 while not vehid and not NetworkDoesNetworkIdExist(vehid) do
@@ -214,7 +225,7 @@ function getVehicles(vehicles)
         }
     }
     for _, vehicle in pairs(vehicles) do
-        if vehicle.available then
+        if vehicle.available and (((garageTypes["water"] ~= vehicle.properties.class and garageTypes["heli"] ~= vehicle.properties.class and garageTypes["plane"] ~= vehicle.properties.class) and not garageTypes[garageType]) or menuClass == vehicle.properties.class) then
             local model = GetLabelText(GetDisplayNameFromVehicleModel(vehicle.properties.model))
             options[#options + 1] = {
                 title = model,
@@ -233,18 +244,27 @@ function getVehicles(vehicles)
             }
         end
     end
-    return options
-end
-
-RegisterNetEvent("ND_VehicleSystem:returnVehicles", function(vehicles)
-    lib.registerContext({
-        id = "garage",
+    return {
+        id = garageType .. "Garage",
         title = "Parking garage",
         onExit = function()
             garageOpen = false
         end,
-        options = getVehicles(vehicles)
-    })
+        options = options
+    }
+end
+
+RegisterCommand("test", function(source, args, rawCommand)
+    local props = lib.getVehicleProperties(GetVehiclePedIsIn(ped))
+    props.class = GetVehicleClass(GetVehiclePedIsIn(ped))
+    TriggerServerEvent("test", props)
+end, false)
+
+RegisterNetEvent("ND_VehicleSystem:returnVehicles", function(vehicles)
+    lib.registerContext(createMenu(vehicles, "land"))
+    lib.registerContext(createMenu(vehicles, "water"))
+    lib.registerContext(createMenu(vehicles, "plane"))
+    lib.registerContext(createMenu(vehicles, "heli"))
 end)
 
 CreateThread(function()
@@ -265,14 +285,22 @@ end)
 
 CreateThread(function()
     DecorRegister("ND_OWNED_VEH", 2)
+
+    local sprite = {
+        ["water"] = 356,
+        ["heli"] = 360,
+        ["plane"] = 359,
+        ["land"] = 357
+    }
+
     for _, location in pairs(parkingLocations) do
         local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
-        SetBlipSprite(blip, 50)
+        SetBlipSprite(blip, sprite[location.garageType])
         SetBlipColour(blip, 3)
-        SetBlipScale(blip, 0.8)
+        SetBlipScale(blip, 0.7)
         SetBlipAsShortRange(blip, true)
         BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("Parking garage")
+        AddTextComponentString("Parking garage (" .. location.garageType .. ")")
         EndTextCommandSetBlipName(blip)
     end
 
@@ -301,7 +329,7 @@ CreateThread(function()
                     end
                     if IsControlJustPressed(0, 51) then
                         garageLocation = location
-                        lib.showContext("garage")
+                        lib.showContext(location.garageType .. "Garage")
                         lib.hideTextUI()
                         garageOpen = true
                     end
