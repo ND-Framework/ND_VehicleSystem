@@ -111,6 +111,13 @@ function getEngineStatus(health)
     return "Very bad"
 end
 
+function getDoorLock(status)
+    if status then
+        return 2
+    end
+    return 1
+end
+
 function spawnVehicle(ped, pedCoords, properties)
     RequestModel(properties.model)
     while not HasModelLoaded(properties.model) do
@@ -120,8 +127,10 @@ function spawnVehicle(ped, pedCoords, properties)
     local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w + (math.random(0, 1) * 180.0), true, false)
     lib.setVehicleProperties(veh, properties)
     SetVehicleOwned(veh, true)
-    garageVehicles[veh] = veh
-    SetModelAsNoLongerNeeded(properties.model)
+    garageVehicles[veh] = {}
+    garageVehicles[veh].veh = veh
+    garageVehicles[veh].locked = true
+    SetVehicleDoorsLocked(veh, getDoorLock(true))
 
     local blip = AddBlipForEntity(veh)
     SetBlipSprite(blip, getVehicleBlipSprite(veh))
@@ -131,12 +140,13 @@ function spawnVehicle(ped, pedCoords, properties)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString("Personal vehicle")
     EndTextCommandSetBlipName(blip)
+    SetModelAsNoLongerNeeded(properties.model)
 end
 
 function getLastGarageVeh()
     local vehicle
     for _, veh in pairs(garageVehicles) do
-        vehicle = veh
+        vehicle = veh.veh
     end
     return vehicle
 end
