@@ -17,15 +17,34 @@ RegisterNetEvent("ND:setCharacter", function(character)
     TriggerServerEvent("ND_VehicleSystem:getVehicles")
 end)
 
-function SetVehicleOwned(veh, status)
+function setVehicleOwned(veh, status)
     DecorSetBool(veh, "ND_OWNED_VEH", status)
 end
 
-function GetVehicleOwned(veh)
+function getVehicleOwned(veh)
     if not DecorExistOn(veh, "ND_OWNED_VEH") then
         return false
     end
 	return DecorGetBool(veh, "ND_OWNED_VEH")
+end
+
+function getDoorLock(status)
+    if status then
+        return 2
+    end
+    return 1
+end
+
+function setVehicleLocked(veh, status)
+    DecorSetBool(veh, "ND_LOCKED_VEH", status)
+    SetVehicleDoorsLocked(veh, getDoorLock(status))
+end
+
+function getVehicleLocked(veh)
+    if not DecorExistOn(veh, "ND_LOCKED_VEH") then
+        return false
+    end
+	return DecorGetBool(veh, "ND_LOCKED_VEH")
 end
 
 function loadAnimDict(dict)
@@ -111,13 +130,6 @@ function getEngineStatus(health)
     return "Very bad"
 end
 
-function getDoorLock(status)
-    if status then
-        return 2
-    end
-    return 1
-end
-
 function spawnVehicle(ped, pedCoords, properties)
     RequestModel(properties.model)
     while not HasModelLoaded(properties.model) do
@@ -126,16 +138,19 @@ function spawnVehicle(ped, pedCoords, properties)
     local spawnLocation = garageLocation.vehicleSpawns[math.random(1, #garageLocation.vehicleSpawns)]
     local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w + (math.random(0, 1) * 180.0), true, false)
     lib.setVehicleProperties(veh, properties)
-    SetVehicleOwned(veh, true)
+    setVehicleOwned(veh, true)
 
+    local highestNum = 0
     for _, gVeh in pairs(garageVehicles) do
-        gVeh.last = false
+        if gVeh.last > highestNum then
+            highestNum = 0
+        end
     end
     garageVehicles[veh] = {}
     garageVehicles[veh].veh = veh
-    garageVehicles[veh].last = true
+    garageVehicles[veh].last = highestNum + 1
     garageVehicles[veh].locked = true
-    SetVehicleDoorsLocked(veh, getDoorLock(true))
+    setVehicleLocked(veh, true)
 
     local blip = AddBlipForEntity(veh)
     SetBlipSprite(blip, getVehicleBlipSprite(veh))
@@ -149,11 +164,15 @@ function spawnVehicle(ped, pedCoords, properties)
 end
 
 function getLastGarageVeh()
+    local highestNum = 0
+    local vehicle
     for _, veh in pairs(garageVehicles) do
-        if vehicle.last then
-            return veh.veh
+        if veh.last > highestNum then
+            highestNum = veh.last
+            vehicle = veh.veh
         end
     end
+    return vehicle
 end
 
 function checkGetVehicle(veh)
@@ -300,6 +319,7 @@ end)
 
 CreateThread(function()
     DecorRegister("ND_OWNED_VEH", 2)
+    DecorRegister("ND_LOCKED_VEH", 2)
 
     local sprite = {
         ["water"] = 356,
@@ -373,3 +393,51 @@ AddEventHandler("onResourceStop", function(resourceName)
         DeletePed(worker)
     end
 end)
+
+function getClosestOwnedVeh()
+    local vehicle
+    local closestVehDist = 500.0
+    for _, veh in pairs(garageVehicles) do
+        local vehDist = #(GetEntityCoords(veh.veh) - pedCoords)
+        if vehDist < closestVehDist then
+            closestVehDist = vehDist
+            vehicle = veh
+        end
+    end
+    return vehicle, closestVehDist
+end
+
+RegisterCommand("+vehicleLocks", function()
+    local vehicle, dist = getClosestOwnedVeh()
+    if dist > 20.0 then
+        lib.notify({
+            title = "No signal",
+            description = "Vehicle to far away.",
+            type = "error",
+            position = "bottom",
+            duration = 3000
+        })
+        return
+    end
+    vehicle.locked = not vehicle.locked
+    setVehicleLocked(vehicle.veh, vehicle.locked)
+    if vehicle.locked then
+        lib.notify({
+            title = "LOCKED",
+            description = "Your vehicle has now been locked.",
+            type = "success",
+            position = "bottom",
+            duration = 3000
+        })
+        return
+    end
+    lib.notify({
+        title = "UNLOCKED",
+        description = "Your vehicle has now been unlocked.",
+        type = "inform",
+        position = "bottom",
+        duration = 3000
+    })
+end, false)
+RegisterCommand("-vehicleLocks", function()end, false)
+RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
