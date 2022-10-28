@@ -127,8 +127,13 @@ function spawnVehicle(ped, pedCoords, properties)
     local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w + (math.random(0, 1) * 180.0), true, false)
     lib.setVehicleProperties(veh, properties)
     SetVehicleOwned(veh, true)
+
+    for _, gVeh in pairs(garageVehicles) do
+        gVeh.last = false
+    end
     garageVehicles[veh] = {}
     garageVehicles[veh].veh = veh
+    garageVehicles[veh].last = true
     garageVehicles[veh].locked = true
     SetVehicleDoorsLocked(veh, getDoorLock(true))
 
@@ -144,11 +149,11 @@ function spawnVehicle(ped, pedCoords, properties)
 end
 
 function getLastGarageVeh()
-    local vehicle
     for _, veh in pairs(garageVehicles) do
-        vehicle = veh.veh
+        if vehicle.last then
+            return veh.veh
+        end
     end
-    return vehicle
 end
 
 function checkGetVehicle(veh)
