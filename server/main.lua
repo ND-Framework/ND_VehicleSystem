@@ -46,9 +46,11 @@ RegisterNetEvent("ND_VehicleSystem:storeVehicle", function(vehid, properties)
     local src = source
     local player = NDCore.Functions.GetPlayer(src)
     local vehicles = getVehicles(player.id)
+    local entity = NetworkGetEntityFromNetworkId(vehid)
+    if not DoesEntityExist(entity) then return end
     for _, vehicle in pairs(vehicles) do
         if vehicle.properties.plate == properties.plate and vehicle.owner == player.id then
-            DeleteEntity(NetworkGetEntityFromNetworkId(vehid))
+            DeleteEntity(entity)
             MySQL.query.await("UPDATE vehicles SET properties = ?, stored = ? WHERE plate = ?", {json.encode(properties), 1, properties.plate})
             TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, getVehicles(player.id))
             TriggerClientEvent("ox_lib:notify", src, {
