@@ -1,3 +1,12 @@
+function getPedSeat(ped, vehicle)
+    for i = -1, 6 do
+        local seat = GetPedInVehicleSeat(vehicle, i)
+        if ped == seat then
+            return i
+        end
+    end
+end
+
 function setVehicleOwned(veh, status)
     DecorSetBool(veh, "ND_OWNED_VEH", status)
 end
@@ -244,20 +253,28 @@ function hotwireVehicle()
     local veh = GetVehiclePedIsIn(ped)
     if veh == 0 then return end
 
+    local seat = getPedSeat(ped, veh)
+    if seat ~= -1 then return end
+
     local dificulties = {
         "easy",
         "medium",
         "hard"
     }
 
+    loadAnimDict("veh@handler@base")
+    TaskPlayAnim(ped, "veh@handler@base", "hotwire", 2.0, 8.0, -1, 48, 0, false, false, false)
+
     for i = 1, 7 do
         local success = lib.skillCheck(dificulties[math.random(1, #dificulties)])
         if not success then
+            ClearPedTasks(ped)
             TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
             return false
         end
         Wait(800)
     end
+    ClearPedTasks(ped)
     
     veh = GetVehiclePedIsIn(ped)
     if not veh then return false end

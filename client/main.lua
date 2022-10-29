@@ -37,7 +37,10 @@ CreateThread(function()
     while true do
         Wait(wait)
         local veh = GetVehiclePedIsIn(ped)
-        if veh ~= 0 and not hasVehicleKeys(veh) then
+        local seat = getPedSeat(ped, veh)
+
+        -- don't turn on engine if no keys.
+        if veh ~= 0 and seat == -1 and not hasVehicleKeys(veh) then
             wait = 10
             if IsVehicleEngineStarting(veh) and not getVehicleEngine(veh) then
                 SetVehicleEngineOn(veh, false, true, true)
@@ -45,6 +48,8 @@ CreateThread(function()
         else
             wait = 500
         end
+
+        -- make blip transparent if in vehicle.
         if veh ~= 0 and isVehicleOwned(veh) then
             inVehcile = true
             blip = GetBlipFromEntity(veh)
@@ -52,6 +57,7 @@ CreateThread(function()
         elseif inVehcile then
             SetBlipAlpha(blip, 255)
         end
+
     end
 end)
 
@@ -78,11 +84,18 @@ CreateThread(function()
         EndTextCommandSetBlipName(blip)
     end
 
+    local cachedPed = PlayerPedId()
+    SetPedConfigFlag(cachedPed, 184, true)
+
     local wait = 500
     while true do
         Wait(wait)
         ped = PlayerPedId()
         pedCoords = GetEntityCoords(ped)
+        if ped ~= cachedPed then
+            cachedPed = ped
+            SetPedConfigFlag(ped, 184, true)
+        end
         local nearParking = false
         for _, location in pairs(parkingLocations) do
             local dist = #(pedCoords - vector3(location.ped.x, location.ped.y, location.ped.z))
@@ -223,6 +236,25 @@ RegisterCommand("+vehicleLocks", function()
 end, false)
 RegisterCommand("-vehicleLocks", function()end, false)
 RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
+
+RegisterCommand("+vehicleShuffle", function()
+    local veh = GetVehiclePedIsIn(ped)
+    if veh == 0 then return end
+    local seat = getPedSeat(ped, veh)
+    local seats = {
+        [-1] = 0,
+        [0] = -1,
+        [1] = 2,
+        [2] = 1,
+        [3] = 4,
+        [4] = 3,
+        [5] = 6,
+        [6] = 5
+    }
+    SetPedIntoVehicle(ped, veh, seats[seat])
+end, false)
+RegisterCommand("-vehicleShuffle", function()end, false)
+RegisterKeyMapping("+vehicleShuffle", "Vehicle: shuffle seat", "keyboard", "")
 
 RegisterCommand("lockpick", function(source, args, rawCommand)
     lockpickVehicle()
