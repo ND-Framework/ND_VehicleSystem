@@ -116,3 +116,9 @@ RegisterCommand("givekeys", function(source, args, rawCommand)
     end
     giveKeys(veh, src, target)
 end, false)
+
+RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success)
+    local veh = NetworkGetEntityFromNetworkId(netid)
+    local owner = NetworkGetEntityOwner(veh)
+    TriggerClientEvent("ND_VehicleSystem:syncAlarm", owner, netid, success)
+end)

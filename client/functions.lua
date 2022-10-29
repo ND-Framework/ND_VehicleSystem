@@ -204,10 +204,7 @@ function lockpickVehicle()
     for i = 1, 7 do
         local success = lib.skillCheck(dificulties[math.random(1, #dificulties)])
         if not success then
-            SetVehicleAlarmTimeLeft(veh, 1)
-            SetVehicleAlarm(veh, true)
-            StartVehicleAlarm(veh)
-
+            TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
             finished = true
             return false
         end
@@ -217,10 +214,7 @@ function lockpickVehicle()
     finished = true
     local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
     if not veh then return false end
-    setVehicleLocked(veh, false)
-    SetVehicleAlarmTimeLeft(veh, 60)
-    SetVehicleAlarm(veh, true)
-    StartVehicleAlarm(veh)
+    TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), true)
     return true
 end
 

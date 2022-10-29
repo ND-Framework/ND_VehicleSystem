@@ -208,3 +208,13 @@ end)
 TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or last driven owned vehicle.", {
     { name="Player ID", help="Player server ID that will receive the keys." }
 })
+
+RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success)
+    local veh = NetworkGetEntityFromNetworkId(netid)
+    if not DoesEntityExist(veh) then return end
+    SetVehicleAlarmTimeLeft(veh, 1)
+    SetVehicleAlarm(veh, true)
+    StartVehicleAlarm(veh)
+    if not success then return end
+    setVehicleLocked(veh, false)
+end)
