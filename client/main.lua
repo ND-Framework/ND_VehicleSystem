@@ -38,7 +38,7 @@ CreateThread(function()
         Wait(wait)
         local veh = GetVehiclePedIsIn(ped)
         if veh ~= 0 and not hasVehicleKeys(veh) then
-            wait = 0
+            wait = 10
             if IsVehicleEngineStarting(veh) and not getVehicleEngine(veh) then
                 SetVehicleEngineOn(veh, false, true, true)
             end
@@ -236,3 +236,4 @@ TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or la
     { name="Player ID", help="Player server ID that will receive the keys." }
 })
 TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
+TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
