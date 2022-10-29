@@ -135,7 +135,6 @@ function spawnVehicle(ped, pedCoords, properties)
     garageVehicles[veh] = {}
     garageVehicles[veh].veh = veh
     garageVehicles[veh].last = highestNum + 1
-    garageVehicles[veh].locked = true
     setVehicleLocked(veh, true)
 
     local blip = AddBlipForEntity(veh)
@@ -161,7 +160,7 @@ function getLastGarageVeh()
     return vehicle
 end
 
-function getClosestOwnedVeh()
+function getClosestVehicles(ownedOnly)
     local vehicle
     local closestVehDist = 500.0
     for _, veh in pairs(garageVehicles) do
@@ -169,6 +168,15 @@ function getClosestOwnedVeh()
         if vehDist < closestVehDist then
             closestVehDist = vehDist
             vehicle = veh
+        end
+    end
+    if not ownedOnly then
+        for _, veh in pairs(accessVehicles) do
+            local vehDist = #(GetEntityCoords(veh.veh) - pedCoords)
+            if vehDist < closestVehDist then
+                closestVehDist = vehDist
+                vehicle = veh
+            end
         end
     end
     return vehicle, closestVehDist

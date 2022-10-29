@@ -5,6 +5,7 @@ local notified = false
 ped = nil
 pedCoords = nil
 garageVehicles = {}
+accessVehicles = {}
 garageOpen = false
 
 if selectedCharacter then
@@ -124,7 +125,7 @@ end)
 
 RegisterCommand("+vehicleLocks", function()
     if GetVehiclePedIsEntering(ped) ~= 0 then return end
-    local vehicle, dist = getClosestOwnedVeh()
+    local vehicle, dist = getClosestVehicles(false)
     if not vehicle then return end
     if dist > 25.0 then
         lib.notify({
@@ -136,8 +137,8 @@ RegisterCommand("+vehicleLocks", function()
         })
         return
     end
-    vehicle.locked = not getVehicleLocked(vehicle.veh)
-    setVehicleLocked(vehicle.veh, vehicle.locked)
+    local locked = not getVehicleLocked(vehicle.veh)
+    setVehicleLocked(vehicle.veh, locked)
     if IsVehicleAlarmActivated(vehicle.veh) then
         SetVehicleAlarm(vehicle.veh, false)
     end
@@ -157,7 +158,7 @@ RegisterCommand("+vehicleLocks", function()
     SetVehicleLights(vehicle.veh, 0)
 
     PlaySoundFromEntity(-1, "Remote_Control_Fob", ped, "PI_Menu_Sounds", true, 0)
-    if vehicle.locked then
+    if locked then
         lib.notify({
             title = "LOCKED",
             description = "Your vehicle has now been locked.",
@@ -190,3 +191,20 @@ RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
 RegisterCommand("lockpick", function(source, args, rawCommand)
     lockpickVehicle()
 end, false)
+
+RegisterNetEvent("ND_VehicleSystem:giveKeys", function(vehid)
+    local veh = NetworkGetEntityFromNetworkId(vehid)
+    accessVehicles[veh] = {}
+    accessVehicles[veh].veh = veh
+    lib.notify({
+        title = "Receive keys",
+        description = "You've received keys to: " .. GetVehicleNumberPlateText(veh) .. ".",
+        type = "inform",
+        position = "bottom-right",
+        duration = 3000
+    })
+end)
+
+TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or last driven owned vehicle.", {
+    { name="Player ID", help="Player server ID that will receive the keys." }
+})

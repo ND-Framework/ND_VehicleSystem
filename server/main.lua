@@ -30,6 +30,18 @@ function saveVehicle(src, properties, stored)
     TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, vehicles)
 end
 
+function giveKeys(vehicle, source, target)
+    local vehid = NetworkGetNetworkIdFromEntity(vehicle)
+    TriggerClientEvent("ND_VehicleSystem:giveKeys", target, vehid)
+    TriggerClientEvent("ox_lib:notify", source, {
+        title = "Keys shared",
+        description = "Keys have been successfully shared.",
+        type = "success",
+        position = "bottom-right",
+        duration = 3000
+    })
+end
+
 RegisterNetEvent("test", function(properties)
     local src = source
     saveVehicle(src, properties, false)
@@ -93,3 +105,14 @@ RegisterNetEvent("ND_VehicleSystem:takeVehicle", function(selectedVehicle)
         duration = 3000
     })
 end)
+
+RegisterCommand("givekeys", function(source, args, rawCommand)
+    local src = source
+    local target = tonumber(args[1])
+    local veh = GetVehiclePedIsIn(GetPlayerPed(src))
+    if veh == 0 then
+        veh = GetVehiclePedIsIn(GetPlayerPed(src), true)
+        if veh == 0 then return end
+    end
+    giveKeys(veh, src, target)
+end, false)
