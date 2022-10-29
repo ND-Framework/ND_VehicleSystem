@@ -28,6 +28,18 @@ function getVehicleLocked(veh)
 	return DecorGetBool(veh, "ND_LOCKED_VEH")
 end
 
+function setVehicleEngine(veh, status)
+    DecorSetBool(veh, "ND_ENGINE_VEH", status)
+    SetVehicleEngineOn(veh, status, true, true)
+end
+
+function getVehicleEngine(veh)
+    if not DecorExistOn(veh, "ND_ENGINE_VEH") then
+        return false
+    end
+	return DecorGetBool(veh, "ND_ENGINE_VEH")
+end
+
 function loadAnimDict(dict)
     if HasAnimDictLoaded(dict) then return end
     RequestAnimDict(dict)
@@ -116,6 +128,15 @@ function isVehicleOwned(vehicle)
     return garageVehicles[vehicle]
 end
 
+function hasVehicleKeys(vehicle)
+    if garageVehicles[vehicle] then
+        return garageVehicles[vehicle]
+    elseif accessVehicles[vehicle] then
+        return accessVehicles[vehicle]
+    end
+    return false
+end
+
 function spawnVehicle(ped, pedCoords, properties)
     RequestModel(properties.model)
     while not HasModelLoaded(properties.model) do
@@ -136,6 +157,7 @@ function spawnVehicle(ped, pedCoords, properties)
     garageVehicles[veh].veh = veh
     garageVehicles[veh].last = highestNum + 1
     setVehicleLocked(veh, true)
+    SetVehicleEngineOn(veh, false, true, true)
 
     local blip = AddBlipForEntity(veh)
     SetBlipSprite(blip, getVehicleBlipSprite(veh))
@@ -214,7 +236,33 @@ function lockpickVehicle()
     finished = true
     local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
     if not veh then return false end
-    TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), true)
+    TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), true, "lockpick")
+    return true
+end
+
+function hotwireVehicle()
+    local veh = GetVehiclePedIsIn(ped)
+    if veh == 0 then return end
+
+    local dificulties = {
+        "easy",
+        "medium",
+        "hard"
+    }
+
+    for i = 1, 7 do
+        local success = lib.skillCheck(dificulties[math.random(1, #dificulties)])
+        if not success then
+            TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
+            return false
+        end
+        Wait(800)
+    end
+    
+    veh = GetVehiclePedIsIn(ped)
+    if not veh then return false end
+    setVehicleEngine(veh, true)
+    TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), true, "hotwire")
     return true
 end
 

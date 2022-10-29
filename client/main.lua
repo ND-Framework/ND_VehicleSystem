@@ -33,9 +33,18 @@ end)
 CreateThread(function()
     local inVehcile = false
     local blip
+    local wait = 500
     while true do
-        Wait(500)
+        Wait(wait)
         local veh = GetVehiclePedIsIn(ped)
+        if veh ~= 0 and not hasVehicleKeys(veh) then
+            wait = 0
+            if IsVehicleEngineStarting(veh) and not getVehicleEngine(veh) then
+                SetVehicleEngineOn(veh, false, true, true)
+            end
+        else
+            wait = 500
+        end
         if veh ~= 0 and isVehicleOwned(veh) then
             inVehcile = true
             blip = GetBlipFromEntity(veh)
@@ -49,6 +58,7 @@ end)
 CreateThread(function()
     DecorRegister("ND_OWNED_VEH", 2)
     DecorRegister("ND_LOCKED_VEH", 2)
+    DecorRegister("ND_ENGINE_VEH", 2)
 
     local sprite = {
         ["water"] = 356,
@@ -123,6 +133,32 @@ AddEventHandler("onResourceStop", function(resourceName)
     end
 end)
 
+RegisterNetEvent("ND_VehicleSystem:giveKeys", function(vehid)
+    local veh = NetworkGetEntityFromNetworkId(vehid)
+    if not veh then return end
+    accessVehicles[veh] = {}
+    accessVehicles[veh].veh = veh
+    lib.notify({
+        title = "Receive keys",
+        description = "You've received keys to: " .. GetVehicleNumberPlateText(veh) .. ".",
+        type = "inform",
+        position = "bottom-right",
+        duration = 3000
+    })
+end)
+
+RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
+    local veh = NetworkGetEntityFromNetworkId(netid)
+    if not DoesEntityExist(veh) then return end
+    SetVehicleAlarmTimeLeft(veh, 1)
+    SetVehicleAlarm(veh, true)
+    StartVehicleAlarm(veh)
+    if not success then return end
+    if action == "lockpick" then
+        setVehicleLocked(veh, false)
+    end
+end)
+
 RegisterCommand("+vehicleLocks", function()
     if GetVehiclePedIsEntering(ped) ~= 0 then return end
     local vehicle, dist = getClosestVehicles(false)
@@ -192,29 +228,11 @@ RegisterCommand("lockpick", function(source, args, rawCommand)
     lockpickVehicle()
 end, false)
 
-RegisterNetEvent("ND_VehicleSystem:giveKeys", function(vehid)
-    local veh = NetworkGetEntityFromNetworkId(vehid)
-    accessVehicles[veh] = {}
-    accessVehicles[veh].veh = veh
-    lib.notify({
-        title = "Receive keys",
-        description = "You've received keys to: " .. GetVehicleNumberPlateText(veh) .. ".",
-        type = "inform",
-        position = "bottom-right",
-        duration = 3000
-    })
-end)
+RegisterCommand("hotwire", function(source, args, rawCommand)
+    hotwireVehicle()
+end, false)
 
 TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or last driven owned vehicle.", {
     { name="Player ID", help="Player server ID that will receive the keys." }
 })
-
-RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success)
-    local veh = NetworkGetEntityFromNetworkId(netid)
-    if not DoesEntityExist(veh) then return end
-    SetVehicleAlarmTimeLeft(veh, 1)
-    SetVehicleAlarm(veh, true)
-    StartVehicleAlarm(veh)
-    if not success then return end
-    setVehicleLocked(veh, false)
-end)
+TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
