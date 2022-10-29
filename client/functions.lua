@@ -234,7 +234,7 @@ function lockpickVehicle()
 
     for i = 1, 7 do
         local success = lib.skillCheck(dificulties[math.random(1, #dificulties)])
-        if not success then
+        if not success or not DoesEntityExist(veh) or #(pedCoords - GetEntityCoords(veh)) > 2.5 then
             TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
             finished = true
             return false
@@ -267,7 +267,7 @@ function hotwireVehicle()
 
     for i = 1, 7 do
         local success = lib.skillCheck(dificulties[math.random(1, #dificulties)])
-        if not success then
+        if not success or not DoesEntityExist(veh) or GetVehiclePedIsIn(ped) == 0 then
             ClearPedTasks(ped)
             TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
             return false
