@@ -106,6 +106,7 @@ function spawnWorker(location, faceType, faceLook, hands)
     SetPedComponentVariation(worker, 4, 0, 0, 0) -- pants
     SetPedComponentVariation(worker, 8, 0, 0, 0) -- shirt
 
+    SetPedCanBeTargetted(worker, false)
     SetEntityCanBeDamaged(worker, false)
     SetBlockingOfNonTemporaryEvents(worker, true)
     SetPedCanRagdollFromPlayerImpact(worker, false)
