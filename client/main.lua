@@ -422,6 +422,21 @@ RegisterCommand("+vehicleLocks", function()
     end
     vehicle.locked = not vehicle.locked
     setVehicleLocked(vehicle.veh, vehicle.locked)
+
+    local keyFob
+    if GetVehiclePedIsIn(ped) == 0 then
+        loadAnimDict("anim@mp_player_intmenu@key_fob@")
+        TaskPlayAnim(ped, "anim@mp_player_intmenu@key_fob@", "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
+        keyFob = CreateObject(`lr_prop_carkey_fob`, 0, 0, 0, true, true, true)
+        AttachEntityToEntity(keyFob, ped, GetPedBoneIndex(ped, 0xDEAD), 0.12, 0.04, -0.025, -100.0, 100.0, 0.0, true, true, false, true, 1, true)
+    end
+
+    Wait(600)
+    SetVehicleLights(vehicle.veh, 2)
+    Wait(100)
+    SetVehicleLights(vehicle.veh, 0)
+
+    PlaySoundFromEntity(-1, "Remote_Control_Fob", ped, "PI_Menu_Sounds", true, 0)
     if vehicle.locked then
         lib.notify({
             title = "LOCKED",
@@ -440,23 +455,14 @@ RegisterCommand("+vehicleLocks", function()
         })
     end
 
-    Wait(600)
-    PlaySoundFromEntity(-1, "Remote_Control_Fob", ped, "PI_Menu_Sounds", true, 0)
-    if GetVehiclePedIsIn(ped) ~= 0 then return end
-    
-    loadAnimDict("anim@mp_player_intmenu@key_fob@")
-    TaskPlayAnim(ped, "anim@mp_player_intmenu@key_fob@", "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
-    local keyFob = CreateObject(`lr_prop_carkey_fob`, 0, 0, 0, true, true, true)
-    AttachEntityToEntity(keyFob, ped, GetPedBoneIndex(ped, 0xDEAD), 0.12, 0.04, -0.025, -100.0, 100.0, 0.0, true, true, false, true, 1, true)
-    SetVehicleLights(vehicle.veh, 2)
-    Wait(100)
-    SetVehicleLights(vehicle.veh, 0)
     Wait(200)
     SetVehicleLights(vehicle.veh, 2)
     Wait(100)
     SetVehicleLights(vehicle.veh, 0)
     Wait(200)
-    DeleteEntity(keyFob)
+    if keyFob then
+        DeleteEntity(keyFob)
+    end
 end, false)
 RegisterCommand("-vehicleLocks", function()end, false)
 RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
