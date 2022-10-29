@@ -48,11 +48,10 @@ function getVehicleLocked(veh)
 end
 
 function loadAnimDict(dict)
-    if not HasAnimDictLoaded(dict) then
-        RequestAnimDict(dict)
-        while not HasAnimDictLoaded(dict) do
-            Wait(1)
-        end
+    if HasAnimDictLoaded(dict) then return end
+    RequestAnimDict(dict)
+    while not HasAnimDictLoaded(dict) do
+        Wait(1)
     end
 end
 
@@ -409,7 +408,7 @@ end
 
 RegisterCommand("+vehicleLocks", function()
     local vehicle, dist = getClosestOwnedVeh()
-    if dist > 20.0 then
+    if dist > 25.0 then
         lib.notify({
             title = "No signal",
             description = "Vehicle to far away.",
@@ -429,15 +428,32 @@ RegisterCommand("+vehicleLocks", function()
             position = "bottom",
             duration = 3000
         })
-        return
+    else
+        lib.notify({
+            title = "UNLOCKED",
+            description = "Your vehicle has now been unlocked.",
+            type = "inform",
+            position = "bottom",
+            duration = 3000
+        })
     end
-    lib.notify({
-        title = "UNLOCKED",
-        description = "Your vehicle has now been unlocked.",
-        type = "inform",
-        position = "bottom",
-        duration = 3000
-    })
+
+    loadAnimDict("anim@mp_player_intmenu@key_fob@")
+    TaskPlayAnim(ped, "anim@mp_player_intmenu@key_fob@", "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
+    local keyFob = CreateObject(`lr_prop_carkey_fob`, 0, 0, 0, true, true, true)
+    AttachEntityToEntity(keyFob, ped, GetPedBoneIndex(ped, 0xDEAD), 0.12, 0.04, -0.025, -100.0, 100.0, 0.0, true, true, false, true, 1, true)
+
+    Wait(600)
+    PlaySoundFromEntity(-1, "Remote_Control_Fob", ped, "PI_Menu_Sounds", true, 0)
+    SetVehicleLights(vehicle.veh, 2)
+    Wait(100)
+    SetVehicleLights(vehicle.veh, 0)
+    Wait(200)
+    SetVehicleLights(vehicle.veh, 2)
+    Wait(100)
+    SetVehicleLights(vehicle.veh, 0)
+    Wait(200)
+    DeleteEntity(keyFob)
 end, false)
 RegisterCommand("-vehicleLocks", function()end, false)
 RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
