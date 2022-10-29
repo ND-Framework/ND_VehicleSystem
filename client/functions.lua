@@ -174,6 +174,48 @@ function getClosestOwnedVeh()
     return vehicle, closestVehDist
 end
 
+function lockpickVehicle()
+    local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
+    if not veh then return false end
+
+    local finished = false
+    local dificulties = {
+        "easy",
+        "medium",
+        "hard"
+    }
+
+    CreateThread(function()
+        loadAnimDict("veh@break_in@0h@p_m_one@")
+        while not finished do
+            TaskPlayAnim(ped, "veh@break_in@0h@p_m_one@", "std_force_entry_ds", 8.0, 5.0, 1800, 31, 0.1, false, false, false)
+            Wait(1800)
+        end
+    end)
+
+    for i = 1, 7 do
+        local success = lib.skillCheck(dificulties[math.random(1, #dificulties)])
+        if not success then
+            SetVehicleAlarmTimeLeft(veh, 1)
+            SetVehicleAlarm(veh, true)
+            StartVehicleAlarm(veh)
+
+            finished = true
+            return false
+        end
+        Wait(800)
+    end
+    
+    finished = true
+    local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
+    if not veh then return false end
+    setVehicleLocked(veh, false)
+    SetVehicleAlarmTimeLeft(veh, 60)
+    SetVehicleAlarm(veh, true)
+    StartVehicleAlarm(veh)
+    return true
+end
+
 function checkGetVehicle(veh)
     if veh == 0 or not DoesEntityExist(veh) then
         local garageVehicle = getLastGarageVeh()

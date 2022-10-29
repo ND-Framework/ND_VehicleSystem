@@ -123,6 +123,7 @@ AddEventHandler("onResourceStop", function(resourceName)
 end)
 
 RegisterCommand("+vehicleLocks", function()
+    if GetVehiclePedIsEntering(ped) ~= 0 then return end
     local vehicle, dist = getClosestOwnedVeh()
     if not vehicle then return end
     if dist > 25.0 then
@@ -135,11 +136,15 @@ RegisterCommand("+vehicleLocks", function()
         })
         return
     end
-    vehicle.locked = not vehicle.locked
+    vehicle.locked = not getVehicleLocked(vehicle.veh)
     setVehicleLocked(vehicle.veh, vehicle.locked)
+    if IsVehicleAlarmActivated(vehicle.veh) then
+        SetVehicleAlarm(vehicle.veh, false)
+    end
 
     local keyFob
     if GetVehiclePedIsIn(ped) == 0 then
+        ClearPedTasks(ped)
         loadAnimDict("anim@mp_player_intmenu@key_fob@")
         TaskPlayAnim(ped, "anim@mp_player_intmenu@key_fob@", "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
         keyFob = CreateObject(`lr_prop_carkey_fob`, 0, 0, 0, true, true, true)
@@ -181,3 +186,7 @@ RegisterCommand("+vehicleLocks", function()
 end, false)
 RegisterCommand("-vehicleLocks", function()end, false)
 RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
+
+RegisterCommand("lockpick", function(source, args, rawCommand)
+    lockpickVehicle()
+end, false)
