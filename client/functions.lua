@@ -7,6 +7,17 @@ function getPedSeat(ped, vehicle)
     end
 end
 
+function setVehicleStolen(veh, status)
+    DecorSetBool(veh, "ND_STOLEN_VEH", status)
+end
+
+function getVehicleStolen(veh)
+    if not DecorExistOn(veh, "ND_STOLEN_VEH") then
+        return false
+    end
+	return DecorGetBool(veh, "ND_STOLEN_VEH")
+end
+
 function setVehicleOwned(veh, status)
     DecorSetBool(veh, "ND_OWNED_VEH", status)
 end
@@ -214,6 +225,7 @@ function getClosestVehicles(ownedOnly)
 end
 
 function lockpickVehicle()
+    if GetVehiclePedIsIn(ped) ~= 0 then return false end
     local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
     if not veh then return false end
 
@@ -251,10 +263,10 @@ end
 
 function hotwireVehicle()
     local veh = GetVehiclePedIsIn(ped)
-    if veh == 0 then return end
+    if veh == 0 then return false end
 
     local seat = getPedSeat(ped, veh)
-    if seat ~= -1 then return end
+    if seat ~= -1 then return false end
 
     local dificulties = {
         "easy",

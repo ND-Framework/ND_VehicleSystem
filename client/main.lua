@@ -58,6 +58,18 @@ CreateThread(function()
             SetBlipAlpha(blip, 255)
         end
 
+        veh = GetVehiclePedIsTryingToEnter(ped)
+        if veh ~= 0 and not isVehicleOwned(veh) and not getVehicleLocked(veh) and not getVehicleStolen(veh) and not IsVehicleDoorFullyOpen(veh, -1) then
+            local class = GetVehicleClass(veh)
+            if math.random(0, 100) > config.randomUnlockedVehicleChance and (class ~= 8 and class ~= 13 and class ~= 14) then
+                setVehicleLocked(veh, true)
+            end
+            setVehicleStolen(veh, true)
+            if GetIsVehicleEngineRunning(veh) and not getVehicleEngine(veh) then
+                setVehicleEngine(veh, true)
+            end
+        end
+
     end
 end)
 
@@ -65,6 +77,7 @@ CreateThread(function()
     DecorRegister("ND_OWNED_VEH", 2)
     DecorRegister("ND_LOCKED_VEH", 2)
     DecorRegister("ND_ENGINE_VEH", 2)
+    DecorRegister("ND_STOLEN_VEH", 2)
 
     local sprite = {
         ["water"] = 356,
@@ -134,15 +147,6 @@ CreateThread(function()
             DeletePed(worker)
             worker = false
         end
-    end
-end)
-
-AddEventHandler("onResourceStop", function(resourceName)
-    if (GetCurrentResourceName() ~= resourceName) then
-        return
-    end
-    if worker then
-        DeletePed(worker)
     end
 end)
 
@@ -269,3 +273,12 @@ TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or la
 })
 TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
 TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
+
+AddEventHandler("onResourceStop", function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+        return
+    end
+    if worker then
+        DeletePed(worker)
+    end
+end)

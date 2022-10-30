@@ -1,3 +1,7 @@
+config = {
+    randomUnlockedVehicleChance = 10, -- 10% chance of random vehicles being unlocked.
+}
+
 parkingLocations = {
     {
         garageType = "plane",
