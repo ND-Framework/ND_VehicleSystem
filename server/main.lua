@@ -42,11 +42,6 @@ function giveKeys(vehicle, source, target)
     })
 end
 
-RegisterNetEvent("test", function(properties)
-    local src = source
-    saveVehicle(src, properties, false)
-end)
-
 RegisterNetEvent("ND_VehicleSystem:getVehicles", function()
     local src = source
     local player = NDCore.Functions.GetPlayer(src)
@@ -121,4 +116,12 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     local veh = NetworkGetEntityFromNetworkId(netid)
     local owner = NetworkGetEntityOwner(veh)
     TriggerClientEvent("ND_VehicleSystem:syncAlarm", owner, netid, success, action)
+end)
+
+
+-- testing
+
+RegisterNetEvent("test", function(properties)
+    local src = source
+    saveVehicle(src, properties, false)
 end)

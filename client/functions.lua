@@ -97,14 +97,14 @@ function getVehicleBlipSprite(vehicle)
 end
 
 function workerAppearance()
-    local handTypes = { -- remmeber test the 1, 2 instead of the 0, 1
+    local handTypes = {
         [1] = {0, 1},
         [2] = {2, 3}
     }
     local faceType = math.random(1, 2)
     local faceLook = math.random(0, 2)
     local hands = handTypes[faceType][math.random(1, 2)]
-    return faceType - 1, faceLook, hands -- remember test the - 1
+    return faceType - 1, faceLook, hands
 end
 
 function spawnWorker(location, faceType, faceLook, hands)

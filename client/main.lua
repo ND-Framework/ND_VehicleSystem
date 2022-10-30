@@ -26,12 +26,6 @@ RegisterNetEvent("ND:setCharacter", function(character)
     TriggerServerEvent("ND_VehicleSystem:getVehicles")
 end)
 
-RegisterCommand("test", function(source, args, rawCommand)
-    local props = lib.getVehicleProperties(GetVehiclePedIsIn(ped))
-    props.class = GetVehicleClass(GetVehiclePedIsIn(ped))
-    TriggerServerEvent("test", props)
-end, false)
-
 RegisterNetEvent("ND_VehicleSystem:returnVehicles", function(vehicles)
     lib.registerContext(createMenu(vehicles, "land"))
     lib.registerContext(createMenu(vehicles, "water"))
@@ -289,19 +283,9 @@ end, false)
 RegisterCommand("-vehicleShuffle", function()end, false)
 RegisterKeyMapping("+vehicleShuffle", "Vehicle: shuffle seat", "keyboard", "")
 
-RegisterCommand("lockpick", function(source, args, rawCommand)
-    lockpickVehicle()
-end, false)
-
-RegisterCommand("hotwire", function(source, args, rawCommand)
-    hotwireVehicle()
-end, false)
-
 TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or last driven owned vehicle.", {
     { name="Player ID", help="Player server ID that will receive the keys." }
 })
-TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
-TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
 
 AddEventHandler("onResourceStop", function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
@@ -311,3 +295,20 @@ AddEventHandler("onResourceStop", function(resourceName)
         DeletePed(worker)
     end
 end)
+
+-- testing
+RegisterCommand("lockpick", function(source, args, rawCommand)
+    lockpickVehicle()
+end, false)
+
+RegisterCommand("hotwire", function(source, args, rawCommand)
+    hotwireVehicle()
+end, false)
+TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
+TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
+
+RegisterCommand("test", function(source, args, rawCommand)
+    local props = lib.getVehicleProperties(GetVehiclePedIsIn(ped))
+    props.class = GetVehicleClass(GetVehiclePedIsIn(ped))
+    TriggerServerEvent("test", props)
+end, false)
