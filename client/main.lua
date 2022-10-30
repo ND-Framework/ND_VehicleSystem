@@ -1,12 +1,16 @@
 local NDCore = exports["ND_Core"]:GetCoreObject()
 local selectedCharacter = NDCore.Functions.GetSelectedCharacter()
-local worker
 local notified = false
+worker = nil
 ped = nil
 pedCoords = nil
 garageVehicles = {}
 accessVehicles = {}
 garageOpen = false
+
+crusieControl = false
+cruiseSpeed = 0
+vehSpeed = 0
 
 local vehicleClassNotDisableAirControl = {
     [8] = true, --motorcycle
@@ -31,6 +35,45 @@ RegisterNetEvent("ND_VehicleSystem:returnVehicles", function(vehicles)
     lib.registerContext(createMenu(vehicles, "water"))
     lib.registerContext(createMenu(vehicles, "plane"))
     lib.registerContext(createMenu(vehicles, "heli"))
+end)
+
+CreateThread(function()
+    local wait = 1000
+    while true do
+        Wait(wait)
+        
+        --- cruise control
+        if veh ~= 0 and cruiseControl then
+            wait = 0
+            vehSpeed = GetEntitySpeed(veh) * 2.236936
+            if vehSpeed < cruiseSpeed then
+                SetControlNormal(0, 71, 0.6)
+            end
+            if vehSpeed < cruiseSpeed/3 then
+                cruiseControl = false
+                lib.notify({
+                    title = "Cruise control",
+                    description = "Vehicle cruise control disabled.",
+                    type = "inform",
+                    position = "bottom-right",
+                    duration = 3000
+                })
+            end
+        elseif cruiseControl then
+            wait = 1000
+            cruiseControl = false
+            lib.notify({
+                title = "Cruise control",
+                description = "Vehicle cruise control disabled.",
+                type = "inform",
+                position = "bottom-right",
+                duration = 3000
+            })
+        else
+            wait = 1000
+        end
+        
+    end
 end)
 
 CreateThread(function()
@@ -199,94 +242,7 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     end
 end)
 
-RegisterCommand("+vehicleLocks", function()
-    if GetVehiclePedIsEntering(ped) ~= 0 then return end
-    local vehicle, dist = getClosestVehicles(false)
-    if not vehicle then return end
-    if dist > 25.0 then
-        lib.notify({
-            title = "No signal",
-            description = "Vehicle to far away.",
-            type = "error",
-            position = "bottom-right",
-            duration = 3000
-        })
-        return
-    end
-    local locked = not getVehicleLocked(vehicle.veh)
-    setVehicleLocked(vehicle.veh, locked)
-    if IsVehicleAlarmActivated(vehicle.veh) then
-        SetVehicleAlarm(vehicle.veh, false)
-    end
-
-    local keyFob
-    if GetVehiclePedIsIn(ped) == 0 then
-        ClearPedTasks(ped)
-        loadAnimDict("anim@mp_player_intmenu@key_fob@")
-        TaskPlayAnim(ped, "anim@mp_player_intmenu@key_fob@", "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
-        keyFob = CreateObject(`lr_prop_carkey_fob`, 0, 0, 0, true, true, true)
-        AttachEntityToEntity(keyFob, ped, GetPedBoneIndex(ped, 0xDEAD), 0.12, 0.04, -0.025, -100.0, 100.0, 0.0, true, true, false, true, 1, true)
-    end
-
-    Wait(600)
-    SetVehicleLights(vehicle.veh, 2)
-    Wait(100)
-    SetVehicleLights(vehicle.veh, 0)
-
-    PlaySoundFromEntity(-1, "Remote_Control_Fob", ped, "PI_Menu_Sounds", true, 0)
-    if locked then
-        lib.notify({
-            title = "LOCKED",
-            description = "Your vehicle has now been locked.",
-            type = "success",
-            position = "bottom-right",
-            duration = 3000
-        })
-    else
-        lib.notify({
-            title = "UNLOCKED",
-            description = "Your vehicle has now been unlocked.",
-            type = "inform",
-            position = "bottom-right",
-            duration = 3000
-        })
-    end
-
-    Wait(200)
-    SetVehicleLights(vehicle.veh, 2)
-    Wait(100)
-    SetVehicleLights(vehicle.veh, 0)
-    Wait(200)
-    if keyFob then
-        DeleteEntity(keyFob)
-    end
-end, false)
-RegisterCommand("-vehicleLocks", function()end, false)
-RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
-
-RegisterCommand("+vehicleShuffle", function()
-    local veh = GetVehiclePedIsIn(ped)
-    if veh == 0 then return end
-    local seat = getPedSeat(ped, veh)
-    local seats = {
-        [-1] = 0,
-        [0] = -1,
-        [1] = 2,
-        [2] = 1,
-        [3] = 4,
-        [4] = 3,
-        [5] = 6,
-        [6] = 5
-    }
-    SetPedIntoVehicle(ped, veh, seats[seat])
-end, false)
-RegisterCommand("-vehicleShuffle", function()end, false)
-RegisterKeyMapping("+vehicleShuffle", "Vehicle: shuffle seat", "keyboard", "")
-
-TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or last driven owned vehicle.", {
-    { name="Player ID", help="Player server ID that will receive the keys." }
-})
-
+-- Resource stop
 AddEventHandler("onResourceStop", function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
         return
@@ -295,20 +251,3 @@ AddEventHandler("onResourceStop", function(resourceName)
         DeletePed(worker)
     end
 end)
-
--- testing
-RegisterCommand("lockpick", function(source, args, rawCommand)
-    lockpickVehicle()
-end, false)
-
-RegisterCommand("hotwire", function(source, args, rawCommand)
-    hotwireVehicle()
-end, false)
-TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
-TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
-
-RegisterCommand("test", function(source, args, rawCommand)
-    local props = lib.getVehicleProperties(GetVehiclePedIsIn(ped))
-    props.class = GetVehicleClass(GetVehiclePedIsIn(ped))
-    TriggerServerEvent("test", props)
-end, false)

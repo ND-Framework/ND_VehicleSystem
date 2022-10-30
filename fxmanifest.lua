@@ -18,12 +18,14 @@ server_scripts {
 }
 client_scripts {
     "client/functions.lua",
-    "client/main.lua"
+    "client/main.lua",
+    "client/commands.lua"
 }
 
 depedencies {
     "ox_lib",
-    "ND_Core"
+    "ND_Core",
+    "/gameBuild:2372" -- must be 2372 or higher.
 }
 
 -- exports {
