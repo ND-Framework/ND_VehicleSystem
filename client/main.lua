@@ -58,15 +58,27 @@ CreateThread(function()
             SetBlipAlpha(blip, 255)
         end
 
+        
         veh = GetVehiclePedIsTryingToEnter(ped)
-        if veh ~= 0 and not isVehicleOwned(veh) and not getVehicleLocked(veh) and not getVehicleStolen(veh) and not IsVehicleDoorFullyOpen(veh, -1) then
-            local class = GetVehicleClass(veh)
-            if math.random(0, 100) > config.randomUnlockedVehicleChance and (class ~= 8 and class ~= 13 and class ~= 14) then
-                setVehicleLocked(veh, true)
+        if veh ~= 0 then
+            local locked = getVehicleLocked(veh)      
+            if locked then
+                SetVehicleDoorsLocked(veh, 2)
+            else
+                SetVehicleDoorsLocked(veh, 1)
             end
-            setVehicleStolen(veh, true)
-            if GetIsVehicleEngineRunning(veh) and not getVehicleEngine(veh) then
-                setVehicleEngine(veh, true)
+
+            -- lock traffic vehicles
+            if not isVehicleOwned(veh) and not locked and not getVehicleStolen(veh) and not IsVehicleDoorFullyOpen(veh, -1) then
+                local class = GetVehicleClass(veh)
+                if math.random(0, 100) > config.randomUnlockedVehicleChance and (class ~= 8 and class ~= 13 and class ~= 14) then
+                    setVehicleLocked(veh, true)
+                end
+                SetVehicleNeedsToBeHotwired(veh, false)
+                setVehicleStolen(veh, true)
+                if GetIsVehicleEngineRunning(veh) and not getVehicleEngine(veh) then
+                    setVehicleEngine(veh, true)
+                end
             end
         end
 

@@ -1,5 +1,5 @@
 config = {
-    randomUnlockedVehicleChance = 10, -- 10% chance of random vehicles being unlocked.
+    randomUnlockedVehicleChance = 30, -- % chance of random vehicles being unlocked.
 }
 
 parkingLocations = {
