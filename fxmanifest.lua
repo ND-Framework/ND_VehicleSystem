@@ -20,3 +20,16 @@ client_scripts {
     "client/functions.lua",
     "client/main.lua"
 }
+
+depedencies {
+    "ox_lib",
+    "ND_Core"
+}
+
+-- exports {
+
+-- }
+
+server_exports {
+    "saveVehicle"
+}
