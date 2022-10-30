@@ -28,10 +28,19 @@ depedencies {
     "/gameBuild:2372" -- must be 2372 or higher.
 }
 
--- exports {
-
--- }
+exports {
+    "getVehicleOwned",
+    "isVehicleOwned",
+    "hasVehicleKeys",
+    "getClosestVehicles",
+    "getVehicleLocked",
+    "setVehicleLocked",
+    "lockpickVehicle",
+    "hotwireVehicle"
+}
 
 server_exports {
-    "saveVehicle"
+    "saveVehicle",
+    "getVehicles",
+    "giveKeys"
 }
