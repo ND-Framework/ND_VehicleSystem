@@ -46,6 +46,15 @@ parkingLocations = {
         }
     },
     {
+        garageType = "heli",
+        ped = vector4(-1121.87, -2839.88, 13.95, 150.58),
+        vehicleSpawns = {
+            vector4(-1178.71, -2846.51, 14.62, 150.16),
+            vector4(-1146.40, -2865.22, 14.62, 151.08),
+            vector4(-1112.85, -2884.66, 14.62, 149.70)
+        }
+    },
+    {
         garageType = "water",
         ped = vector4(-831.03, -1359.53, 5.00, 299.80),
         vehicleSpawns = {
