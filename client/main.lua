@@ -8,6 +8,15 @@ garageVehicles = {}
 accessVehicles = {}
 garageOpen = false
 
+local vehicleClassNotDisableAirControl = {
+    [8] = true, --motorcycle
+    [13] = true, --bicycles
+    [14] = true, --boats
+    [15] = true, --helicopter
+    [16] = true, --plane
+    [19] = true --military
+}
+
 if selectedCharacter then
     TriggerServerEvent("ND_VehicleSystem:getVehicles")
 end
@@ -39,13 +48,22 @@ CreateThread(function()
         local veh = GetVehiclePedIsIn(ped)
         local seat = getPedSeat(ped, veh)
 
-        -- don't turn on engine if no keys.
-        if veh ~= 0 and seat == -1 and not hasVehicleKeys(veh) then
-            wait = 10
-            if IsVehicleEngineStarting(veh) and not getVehicleEngine(veh) then
-                SetVehicleEngineOn(veh, false, true, true)
+        if veh ~= 0 and seat == -1 then
+            -- disable vehicle air control.
+            if config.disableVehicleAirControl and not vehicleClassNotDisableAirControl[GetVehicleClass(veh)] and IsEntityInAir(veh) then
+                wait = 0
+                DisableControlAction(0, 59)
+                DisableControlAction(0, 60)
+            elseif not hasVehicleKeys(veh) and not GetIsVehicleEngineRunning(veh) then
+                wait = 10
+                -- don't turn on engine if no keys.
+                if IsVehicleEngineStarting(veh) and not getVehicleEngine(veh) then
+                    SetVehicleEngineOn(veh, false, true, true)
+                end
+            else
+                wait = 500
             end
-        else
+        elseif wait == 0 or wait == 10 then
             wait = 500
         end
 
@@ -58,7 +76,7 @@ CreateThread(function()
             SetBlipAlpha(blip, 255)
         end
 
-        
+        -- check if ped is trying to enter a vehicle and lock if it's locked.
         veh = GetVehiclePedIsTryingToEnter(ped)
         if veh ~= 0 then
             local locked = getVehicleLocked(veh)      
@@ -81,7 +99,6 @@ CreateThread(function()
                 end
             end
         end
-
     end
 end)
 

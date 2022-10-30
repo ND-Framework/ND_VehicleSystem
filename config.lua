@@ -1,5 +1,6 @@
 config = {
     randomUnlockedVehicleChance = 30, -- % chance of random vehicles being unlocked.
+    disableVehicleAirControl = true,
 }
 
 parkingLocations = {
