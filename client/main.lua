@@ -87,7 +87,7 @@ CreateThread(function()
 
         if veh ~= 0 and seat == -1 then
             -- disable vehicle air control.
-            if config.disableVehicleAirControl and not vehicleClassNotDisableAirControl[GetVehicleClass(veh)] and IsEntityInAir(veh) then
+            if config.disableVehicleAirControl and not vehicleClassNotDisableAirControl[GetVehicleClass(veh)] and (IsEntityInAir(veh) or IsEntityUpsidedown(veh)) then
                 wait = 0
                 DisableControlAction(0, 59)
                 DisableControlAction(0, 60)
