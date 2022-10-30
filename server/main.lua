@@ -117,11 +117,3 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     local owner = NetworkGetEntityOwner(veh)
     TriggerClientEvent("ND_VehicleSystem:syncAlarm", owner, netid, success, action)
 end)
-
-
--- testing
-
-RegisterNetEvent("test", function(properties)
-    local src = source
-    saveVehicle(src, properties, false)
-end)
