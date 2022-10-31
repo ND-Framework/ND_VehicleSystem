@@ -127,6 +127,7 @@ function spawnWorker(location, faceType, faceLook, hands)
     SetPedConfigFlag(worker, 185, true)
     SetPedConfigFlag(worker, 108, true)
     SetPedConfigFlag(worker, 208, true)
+    SetPedCanRagdoll(worker, false)
 
     loadAnimDict("anim@amb@casino@valet_scenario@pose_d@")
     TaskPlayAnim(worker, "anim@amb@casino@valet_scenario@pose_d@", "base_a_m_y_vinewood_01", 2.0, 8.0, -1, 1, 0, 0, 0, 0)
