@@ -11,7 +11,7 @@ This is a vehicle system for the ND Framework.
 * Hotwire vehicles
 * Disable vehicle air control.
 * Lock traffic & parked vehicles.
-* Cruise control
+* Cruise control.
 
 ## Exports:
 
