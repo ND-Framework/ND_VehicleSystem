@@ -242,6 +242,37 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     end
 end)
 
+RegisterNetEvent("ND_VehicleSystem:applyProperties", function(netid, properties)
+    while not NetworkDoesNetworkIdExist(netid) do
+       Wait(0)
+    end
+    local veh = NetworkGetEntityFromNetworkId(netid)
+    lib.setVehicleProperties(veh, properties)
+    setVehicleOwned(veh, true)
+
+    local highestNum = 0
+    for _, gVeh in pairs(garageVehicles) do
+        if gVeh.last > highestNum then
+            highestNum = 0
+        end
+    end
+    garageVehicles[veh] = {}
+    garageVehicles[veh].veh = veh
+    garageVehicles[veh].last = highestNum + 1
+    setVehicleLocked(veh, true)
+    SetVehicleEngineOn(veh, false, true, true)
+
+    local blip = AddBlipForEntity(veh)
+    SetBlipSprite(blip, getVehicleBlipSprite(veh))
+    SetBlipColour(blip, 0)
+    SetBlipScale(blip, 0.8)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Personal vehicle")
+    EndTextCommandSetBlipName(blip)
+    SetModelAsNoLongerNeeded(properties.model)
+end)
+
 -- Resource stop
 AddEventHandler("onResourceStop", function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
