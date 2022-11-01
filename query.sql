@@ -1,10 +1,12 @@
 CREATE TABLE `vehicles` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`owner` INT(11) NULL DEFAULT NULL,
 	`plate` VARCHAR(255) NULL DEFAULT NULL,
 	`glovebox` LONGTEXT NULL DEFAULT '[]',
 	`trunk` LONGTEXT NULL DEFAULT '[]',
 	`properties` LONGTEXT NULL DEFAULT '[]',
 	`stored` INT(11) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
 	INDEX `owner` (`owner`) USING BTREE,
-	CONSTRAINT `vehowner` FOREIGN KEY (`owner`) REFERENCES `andy`.`characters` (`character_id`) ON UPDATE CASCADE ON DELETE CASCADE
+	CONSTRAINT `vehowner` FOREIGN KEY (`owner`) REFERENCES `characters` (`character_id`) ON UPDATE CASCADE ON DELETE CASCADE
 );
