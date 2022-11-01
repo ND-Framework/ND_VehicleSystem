@@ -242,38 +242,48 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     end
 end)
 
-RegisterNetEvent("ND_VehicleSystem:applySettings", function(netid, properties)
-    while not NetworkDoesNetworkIdExist(netid) do
-       Wait(0)
-    end
-    local veh = NetworkGetEntityFromNetworkId(netid)
-    NetworkRequestControlOfEntity(veh)
-    while not NetworkHasControlOfEntity(veh) do
-        Wait(0)
-    end
-    lib.setVehicleProperties(veh, properties)
-    setVehicleOwned(veh, true)
+AddStateBagChangeHandler("props", nil, function(bagName, key, value, reserved, replicated)
+    if not value then return end
+    Wait(50)
 
-    local highestNum = 0
-    for _, gVeh in pairs(garageVehicles) do
-        if gVeh.last > highestNum then
-            highestNum = 0
+    local netId = tonumber(bagName:gsub("entity:", ""), 10)
+    local entity = NetworkDoesNetworkIdExist(netId) and NetworkGetEntityFromNetworkId(netId)
+    if not entity then return end
+
+    for i = -1, 0 do
+        local pedInVeh = GetPedInVehicleSeat(entity, i)
+
+        if pedInVeh ~= ped and pedInVeh > 0 and NetworkGetEntityOwner(pedInVeh) == PlayerId() then
+            DeleteEntity(pedInVeh)
         end
     end
-    garageVehicles[veh] = {}
-    garageVehicles[veh].veh = veh
-    garageVehicles[veh].last = highestNum + 1
-    setVehicleLocked(veh, true)
-    SetVehicleEngineOn(veh, false, true, true)
 
-    local blip = AddBlipForEntity(veh)
-    SetBlipSprite(blip, getVehicleBlipSprite(veh))
-    SetBlipColour(blip, 0)
-    SetBlipScale(blip, 0.8)
-    SetBlipAsShortRange(blip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Personal vehicle")
-    EndTextCommandSetBlipName(blip)
+    if NetworkGetEntityOwner(entity) == PlayerId() then
+        lib.setVehicleProperties(entity, value)
+        SetVehicleOnGroundProperly(entity)
+        setVehicleOwned(entity, true)
+
+        local highestNum = 0
+        for _, gVeh in pairs(garageVehicles) do
+            if gVeh.last > highestNum then
+                highestNum = 0
+            end
+        end
+        garageVehicles[entity] = {}
+        garageVehicles[entity].veh = entity
+        garageVehicles[entity].last = highestNum + 1
+        setVehicleLocked(entity, true)
+        SetVehicleEngineOn(entity, false, true, true)
+
+        local blip = AddBlipForEntity(entity)
+        SetBlipSprite(blip, getVehicleBlipSprite(entity))
+        SetBlipColour(blip, 0)
+        SetBlipScale(blip, 0.8)
+        SetBlipAsShortRange(blip, true)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString("Personal vehicle")
+        EndTextCommandSetBlipName(blip)
+    end
 end)
 
 -- Resource stop

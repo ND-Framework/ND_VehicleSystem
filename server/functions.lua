@@ -18,6 +18,11 @@ function generatePlate()
     return table.concat(plate)
 end
 
+function transferVehicle(vehicleID, from, to)
+    MySQL.query.await("UPDATE vehicles SET owner = ? WHERE id = ?", {from, vehicleID})
+    -- change state bag to not have keys and other person have keys. And change keys to state bags on client.
+end
+
 function setVehicleOwned(src, properties, stored)
     local player = NDCore.Functions.GetPlayer(src)
     local plate = isPlateAvailable(generatePlate())
@@ -82,9 +87,10 @@ function spawnOwnedVehicle(source, vehicleID, coords)
             playerOwnedVehicles[vehicle.id] = {
                 netid = netid
             }
-            Entity(veh).state.owner = vehicle.owner
-            Entity(veh).state.id = vehicle.id
-            TriggerClientEvent("ND_VehicleSystem:applySettings", source, netid, vehicle.properties)
+            local state = Entity(veh).state
+            state.owner = vehicle.owner
+            state.id = vehicle.id
+            state.props = vehicle.properties
             return true
         end
     end
