@@ -25,9 +25,9 @@ end
 
 function setVehicleOwned(src, properties, stored)
     local player = NDCore.Functions.GetPlayer(src)
-    local plate = isPlateAvailable(generatePlate())
-    while not plate do
-        plate = isPlateAvailable(generatePlate())
+    local plate = generatePlate()
+    while not isPlateAvailable(plate) do
+        plate = generatePlate()
     end
     properties.plate = plate
     local id = MySQL.insert.await("INSERT INTO vehicles (owner, plate, properties, stored) VALUES (?, ?, ?, ?)", {player.id, properties.plate, json.encode(properties), boolSql(stored)})
@@ -90,7 +90,9 @@ function spawnOwnedVehicle(source, vehicleID, coords)
             local state = Entity(veh).state
             state.owner = vehicle.owner
             state.id = vehicle.id
-            state.props = vehicle.properties
+            if next(vehicle.properties) then
+                state.props = vehicle.properties
+            end
             return true
         end
     end
