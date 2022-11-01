@@ -355,10 +355,9 @@ function createMenu(vehicles, garageType)
                     local ped = PlayerPedId()
                     local spawnLocation = garageLocation.vehicleSpawns[math.random(1, #garageLocation.vehicleSpawns)]
                     TriggerServerEvent("ND_VehicleSystem:takeVehicle", vehicle, spawnLocation)
-                    -- spawnVehicle(ped, GetEntityCoords(ped), vehicle.properties)
                 end,
                 metadata = {
-                    {label = "Plate", value = vehicle.plate},
+                    {label = "Plate", value = vehicle.properties.plate},
                     {label = "Fuel", value = vehicle.properties.fuelLevel .. "%"},
                     {label = "Make", value = GetLabelText(GetMakeNameFromVehicleModel(vehicle.properties.model))},
                     {label = "Model", value = model},
