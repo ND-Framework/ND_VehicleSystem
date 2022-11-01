@@ -158,39 +158,6 @@ function hasVehicleKeys(vehicle)
     return false
 end
 
-function spawnVehicle(ped, pedCoords, properties)
-    RequestModel(properties.model)
-    while not HasModelLoaded(properties.model) do
-        Wait(10)
-    end
-    local spawnLocation = garageLocation.vehicleSpawns[math.random(1, #garageLocation.vehicleSpawns)]
-    local veh = CreateVehicle(properties.model, spawnLocation.x, spawnLocation.y, spawnLocation.z, spawnLocation.w + (math.random(0, 1) * 180.0), true, false)
-    lib.setVehicleProperties(veh, properties)
-    setVehicleOwned(veh, true)
-
-    local highestNum = 0
-    for _, gVeh in pairs(garageVehicles) do
-        if gVeh.last > highestNum then
-            highestNum = 0
-        end
-    end
-    garageVehicles[veh] = {}
-    garageVehicles[veh].veh = veh
-    garageVehicles[veh].last = highestNum + 1
-    setVehicleLocked(veh, true)
-    SetVehicleEngineOn(veh, false, true, true)
-
-    local blip = AddBlipForEntity(veh)
-    SetBlipSprite(blip, getVehicleBlipSprite(veh))
-    SetBlipColour(blip, 0)
-    SetBlipScale(blip, 0.8)
-    SetBlipAsShortRange(blip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Personal vehicle")
-    EndTextCommandSetBlipName(blip)
-    SetModelAsNoLongerNeeded(properties.model)
-end
-
 function getLastGarageVeh()
     local highestNum = 0
     local vehicle
@@ -386,8 +353,9 @@ function createMenu(vehicles, garageType)
                 title = model,
                 onSelect = function(args)
                     local ped = PlayerPedId()
-                    TriggerServerEvent("ND_VehicleSystem:takeVehicle", vehicle)
-                    spawnVehicle(ped, GetEntityCoords(ped), vehicle.properties)
+                    local spawnLocation = garageLocation.vehicleSpawns[math.random(1, #garageLocation.vehicleSpawns)]
+                    TriggerServerEvent("ND_VehicleSystem:takeVehicle", vehicle, spawnLocation)
+                    -- spawnVehicle(ped, GetEntityCoords(ped), vehicle.properties)
                 end,
                 metadata = {
                     {label = "Plate", value = vehicle.plate},
