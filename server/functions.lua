@@ -8,9 +8,10 @@ end
 
 function setVehicleOwned(src, properties, stored)
     local player = NDCore.Functions.GetPlayer(src)
-    MySQL.query.await("INSERT INTO vehicles (owner, plate, properties, stored) VALUES (?, ?, ?, ?)", {player.id, properties.plate, json.encode(properties), boolSql(stored)})
+    local id = MySQL.insert.await("INSERT INTO vehicles (owner, plate, properties, stored) VALUES (?, ?, ?, ?)", {player.id, properties.plate, json.encode(properties), boolSql(stored)})
     local vehicles = getVehicles(player.id)
     TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, vehicles)
+    return id
 end
 
 function getVehicles(characterId)
