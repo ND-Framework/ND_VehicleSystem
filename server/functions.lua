@@ -6,6 +6,13 @@ function boolSql(status)
     if status then return 1 else return 0 end
 end
 
+function setVehicleOwned(src, properties, stored)
+    local player = NDCore.Functions.GetPlayer(src)
+    MySQL.query.await("INSERT INTO vehicles (owner, plate, properties, stored) VALUES (?, ?, ?, ?)", {player.id, properties.plate, json.encode(properties), boolSql(stored)})
+    local vehicles = getVehicles(player.id)
+    TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, vehicles)
+end
+
 function getVehicles(characterId)
     local result = MySQL.query.await("SELECT * FROM vehicles WHERE owner = ?", {characterId})
     if not result then return {} end
@@ -20,13 +27,6 @@ function getVehicles(characterId)
         vehicles[key].properties = json.decode(vehicle.properties)
     end
     return vehicles
-end
-
-function setVehicleOwned(src, properties, stored)
-    local player = NDCore.Functions.GetPlayer(src)
-    MySQL.query.await("INSERT INTO vehicles (owner, plate, properties, stored) VALUES (?, ?, ?, ?)", {player.id, properties.plate, json.encode(properties), boolSql(stored)})
-    local vehicles = getVehicles(player.id)
-    TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, vehicles)
 end
 
 function giveKeys(vehicle, source, target)

@@ -18,9 +18,11 @@ This is a vehicle system for the ND Framework.
 **Server:**
 |Export|Description|Parameter(s)|
 |-|-|-|
-|saveVehicle|save a vehicle to a character.|int: **Player source**, table: **vehicle properties**, boolean: **in garage or not**.|
+|setVehicleOwned|save a vehicle to a character.|int: **Player source**, table: **vehicle properties**, boolean: **in garage or not**.|
 |getVehicles|Get the vehicles a characater owns.|int: **ND Character id**.|
 |giveKeys|Give keys vehicle keys to a player.|int: **Vehicle entity**, int: **Player source**, int: **Target player source**.|
+|spawnOwnedVehicle|Spawn a vehicle the player owns.|int: **Player source**, int: **vehicle ID**, vec3: **Spawn coords**.|
+|returnVehicleToGarage|Give keys vehicle keys to a player.|int: **Player source**, int: **Vehicle entity**, table: **vehicle properties**.|
 
 **Client:**
 |Export|Description|Parameter(s)|
