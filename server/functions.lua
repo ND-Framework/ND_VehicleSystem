@@ -6,8 +6,25 @@ function boolSql(status)
     if status then return 1 else return 0 end
 end
 
+function isPlateAvailable(plate)
+    return not MySQL.scalar.await("SELECT 1 FROM vehicles WHERE plate = ?", {plate})
+end
+
+function generatePlate()
+    local plate = {}
+    for i = 1, 8 do
+        plate[i] = math.random(0, 1) == 1 and string.char(math.random(65, 90)) or math.random(0, 9)
+    end
+    return table.concat(plate)
+end
+
 function setVehicleOwned(src, properties, stored)
     local player = NDCore.Functions.GetPlayer(src)
+    local plate = isPlateAvailable(generatePlate())
+    while not plate do
+        plate = isPlateAvailable(generatePlate())
+    end
+    properties.plate = plate
     local id = MySQL.insert.await("INSERT INTO vehicles (owner, plate, properties, stored) VALUES (?, ?, ?, ?)", {player.id, properties.plate, json.encode(properties), boolSql(stored)})
     local vehicles = getVehicles(player.id)
     TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, vehicles)
@@ -67,7 +84,7 @@ function spawnOwnedVehicle(source, vehicleID, coords)
             }
             Entity(veh).state.owner = vehicle.owner
             Entity(veh).state.id = vehicle.id
-            TriggerClientEvent("ND_VehicleSystem:applyProperties", source, netid, vehicle.properties)
+            TriggerClientEvent("ND_VehicleSystem:applySettings", source, netid, vehicle.properties)
             return true
         end
     end

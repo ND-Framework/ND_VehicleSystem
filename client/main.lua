@@ -242,11 +242,15 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     end
 end)
 
-RegisterNetEvent("ND_VehicleSystem:applyProperties", function(netid, properties)
+RegisterNetEvent("ND_VehicleSystem:applySettings", function(netid, properties)
     while not NetworkDoesNetworkIdExist(netid) do
        Wait(0)
     end
     local veh = NetworkGetEntityFromNetworkId(netid)
+    NetworkRequestControlOfEntity(veh)
+    while not NetworkHasControlOfEntity(veh) do
+        Wait(0)
+    end
     lib.setVehicleProperties(veh, properties)
     setVehicleOwned(veh, true)
 
@@ -270,7 +274,6 @@ RegisterNetEvent("ND_VehicleSystem:applyProperties", function(netid, properties)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString("Personal vehicle")
     EndTextCommandSetBlipName(blip)
-    SetModelAsNoLongerNeeded(properties.model)
 end)
 
 -- Resource stop
