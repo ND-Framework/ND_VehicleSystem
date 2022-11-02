@@ -18,9 +18,52 @@ function generatePlate()
     return table.concat(plate)
 end
 
-function transferVehicle(vehicleID, from, to)
-    MySQL.query.await("UPDATE vehicles SET owner = ? WHERE id = ?", {from, vehicleID})
-    -- change state bag to not have keys and other person have keys. And change keys to state bags on client.
+function transferVehicle(vehicleID, fromSource, toSource)
+    local playerTo = NDCore.Functions.GetPlayer(toSource)
+    MySQL.query.await("UPDATE vehicles SET owner = ? WHERE id = ?", {playerTo.id, vehicleID})
+    
+    if not playerOwnedVehicles[vehicleID] then return end
+    local veh = NetworkGetEntityFromNetworkId(playerOwnedVehicles[vehicleID].netid)
+    if not veh then
+        TriggerClientEvent("ox_lib:notify", fromSource, {
+            title = "Ownership transfered",
+            description = "Vehicle ownership of has been transfered.",
+            type = "success",
+            position = "bottom-right",
+            duration = 4000
+        })
+        TriggerClientEvent("ox_lib:notify", toSource, {
+            title = "Ownership received",
+            description = "Received vehicle ownership.",
+            type = "inform",
+            position = "bottom-right",
+            duration = 4000
+        })
+        return
+    end
+    
+    local state = Entity(veh).state
+    state.owner = playerTo.id
+    state.keys = {
+        [playerTo.id] = true
+    }
+
+    TriggerClientEvent("ND_VehicleSystem:removeBlip", fromSource, playerOwnedVehicles[vehicleID].netid)
+
+    TriggerClientEvent("ox_lib:notify", fromSource, {
+        title = "Ownership transfered",
+        description = "Vehicle ownership of " .. GetVehicleNumberPlateText(veh) .. " has been transfered.",
+        type = "success",
+        position = "bottom-right",
+        duration = 4000
+    })
+    TriggerClientEvent("ox_lib:notify", toSource, {
+        title = "Ownership received",
+        description = "Received vehicle ownership of " .. GetVehicleNumberPlateText(veh) .. ".",
+        type = "inform",
+        position = "bottom-right",
+        duration = 4000
+    })
 end
 
 function setVehicleOwned(src, properties, stored)
