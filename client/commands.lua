@@ -28,12 +28,8 @@ RegisterCommand("+vehicleLocks", function()
         TaskPlayAnim(ped, "anim@mp_player_intmenu@key_fob@", "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
         keyFob = CreateObject(`lr_prop_carkey_fob`, 0, 0, 0, true, true, true)
         AttachEntityToEntity(keyFob, ped, GetPedBoneIndex(ped, 0xDEAD), 0.12, 0.04, -0.025, -100.0, 100.0, 0.0, true, true, false, true, 1, true)
+        Wait(700)
     end
-
-    Wait(600)
-    SetVehicleLights(vehicle.veh, 2)
-    Wait(100)
-    SetVehicleLights(vehicle.veh, 0)
 
     PlaySoundFromEntity(-1, "Remote_Control_Fob", ped, "PI_Menu_Sounds", true, 0)
     if locked then
@@ -54,11 +50,13 @@ RegisterCommand("+vehicleLocks", function()
         })
     end
 
-    Wait(200)
     SetVehicleLights(vehicle.veh, 2)
     Wait(100)
     SetVehicleLights(vehicle.veh, 0)
     Wait(200)
+    SetVehicleLights(vehicle.veh, 2)
+    Wait(100)
+    SetVehicleLights(vehicle.veh, 0)
     if keyFob then
         DeleteEntity(keyFob)
     end
