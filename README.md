@@ -30,8 +30,9 @@ This is a vehicle system for the ND Framework.
 |getVehicleOwned|Check if a vehicle is owned by any player.|int: **Vehicle entity**.|
 |isVehicleOwned|Check if the player owns the vehicle.|int: **Vehicle entity**.|
 |hasVehicleKeys|Check if the player has keys to the vehicle.|int: **Vehicle entity**.|
-|getClosestVehicles|Get the closest vehicle the player has keys to.|boolean: **Only get owned vehicles or all vehicles with keys to**.|
+|getClosestVehicle|Get the closest vehicle the player has keys to, the distance of the vehicle and player, and the coords of the vehicle.|boolean: **Only get owned vehicles or all vehicles with keys to**.|
 |getVehicleLocked|Check if the vehicle is locked or unlocked.|int: **Vehicle entity**.|
 |setVehicleLocked|Set the vehicle lock status.|int: **Vehicle entity**, boolean: **Locked or unlocked**.|
-|lockpickVehicle|Start lockpicking a nearby vehicle, returns if successful or not.||
-|hotwireVehicle|Start to hotwire current vehicle, returns if successful or not.||
+|lockpickVehicle|Begin lockpicking a nearby vehicle, returns if successful or not.||
+|hotwireVehicle|Begin to hotwire current vehicle, returns if successful or not.||
+|transferVehicle|Transfer a vehicle to another player.|int: **Vehicle database ID**, int: **Player source**, int: **Target player source**.|
