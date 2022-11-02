@@ -1,8 +1,10 @@
 -- LOCK / UNLOCK Vehicle
+local allowLock = true
 RegisterCommand("+vehicleLocks", function()
     if GetVehiclePedIsEntering(ped) ~= 0 then return end
     local vehicle, dist = getClosestVehicles(false)
-    if not vehicle then return end
+    if not vehicle or not allowLock then return end
+    allowLock = false
     if dist > 25.0 then
         lib.notify({
             title = "No signal",
@@ -60,6 +62,7 @@ RegisterCommand("+vehicleLocks", function()
     if keyFob then
         DeleteEntity(keyFob)
     end
+    allowLock = true
 end, false)
 RegisterCommand("-vehicleLocks", function()end, false)
 RegisterKeyMapping("+vehicleLocks", "Vehicle: Lock/Unlock", "keyboard", "o")
