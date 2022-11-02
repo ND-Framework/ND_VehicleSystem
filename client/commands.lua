@@ -2,7 +2,7 @@
 local allowLock = true
 RegisterCommand("+vehicleLocks", function()
     if GetVehiclePedIsEntering(ped) ~= 0 then return end
-    local vehicle, dist = getClosestVehicles(false)
+    local vehicle, dist = getClosestVehicle(false)
     if not vehicle or not allowLock then return end
     allowLock = false
     if dist > 25.0 then
@@ -15,10 +15,10 @@ RegisterCommand("+vehicleLocks", function()
         })
         return
     end
-    local locked = not getVehicleLocked(vehicle.veh)
-    setVehicleLocked(vehicle.veh, locked)
-    if IsVehicleAlarmActivated(vehicle.veh) then
-        SetVehicleAlarm(vehicle.veh, false)
+    local locked = not getVehicleLocked(vehicle)
+    setVehicleLocked(vehicle, locked)
+    if IsVehicleAlarmActivated(vehicle) then
+        SetVehicleAlarm(vehicle, false)
     end
 
     local keyFob
@@ -50,13 +50,13 @@ RegisterCommand("+vehicleLocks", function()
         })
     end
 
-    SetVehicleLights(vehicle.veh, 2)
+    SetVehicleLights(vehicle, 2)
     Wait(100)
-    SetVehicleLights(vehicle.veh, 0)
+    SetVehicleLights(vehicle, 0)
     Wait(200)
-    SetVehicleLights(vehicle.veh, 2)
+    SetVehicleLights(vehicle, 2)
     Wait(100)
-    SetVehicleLights(vehicle.veh, 0)
+    SetVehicleLights(vehicle, 0)
     if keyFob then
         DeleteEntity(keyFob)
     end
