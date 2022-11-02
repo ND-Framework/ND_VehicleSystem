@@ -46,12 +46,16 @@ end)
 
 RegisterCommand("givekeys", function(source, args, rawCommand)
     local src = source
+    if not args[1] then return end
     local target = tonumber(args[1])
+    if not GetPlayerPing(target) then return end
+
     local veh = GetVehiclePedIsIn(GetPlayerPed(src))
     if veh == 0 then
         veh = GetVehiclePedIsIn(GetPlayerPed(src), true)
         if veh == 0 then return end
     end
+    
     giveKeys(veh, src, target)
 end, false)
 

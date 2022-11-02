@@ -96,14 +96,31 @@ function getVehicles(characterId)
 end
 
 function giveKeys(vehicle, source, target)
-    local vehid = NetworkGetNetworkIdFromEntity(vehicle)
-    TriggerClientEvent("ND_VehicleSystem:giveKeys", target, vehid)
+    local state = Entity(vehicle).state
+    if not state then return end
+    local player = NDCore.Functions.GetPlayer(source)
+    local owner = state.owner
+    if not owner and owner ~= player.id then return end
+
+    local keys = state.keys
+    if not keys then return end
+
+    local targetPlayer = NDCore.Functions.GetPlayer(target)
+    state.keys[targetPlayer.id] = true
+
     TriggerClientEvent("ox_lib:notify", source, {
         title = "Keys shared",
-        description = "Keys have been successfully shared.",
+        description = "You've shared vehicle keys to " .. GetVehicleNumberPlateText(vehicle) .. ".",
         type = "success",
         position = "bottom-right",
-        duration = 3000
+        duration = 4000
+    })
+    TriggerClientEvent("ox_lib:notify", source, {
+        title = "Keys received",
+        description = "Received vehicle keys to " .. GetVehicleNumberPlateText(vehicle) .. ".",
+        type = "inform",
+        position = "bottom-right",
+        duration = 4000
     })
 end
 
@@ -133,6 +150,9 @@ function spawnOwnedVehicle(source, vehicleID, coords)
             local state = Entity(veh).state
             state.owner = vehicle.owner
             state.id = vehicle.id
+            state.keys = {
+                [player.id] = true
+            }
             if next(vehicle.properties) then
                 state.props = vehicle.properties
             end
