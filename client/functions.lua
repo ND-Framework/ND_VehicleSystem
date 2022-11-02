@@ -146,14 +146,19 @@ function getEngineStatus(health)
 end
 
 function isVehicleOwned(vehicle)
-    return garageVehicles[vehicle]
+    if not selectedCharacter then return end
+    local state = Entity(vehicle).state
+    if state.owner == selectedCharacter.id then
+        return true
+    end
+    return false
 end
 
 function hasVehicleKeys(vehicle)
-    if garageVehicles[vehicle] then
-        return garageVehicles[vehicle]
-    elseif accessVehicles[vehicle] then
-        return accessVehicles[vehicle]
+    if not selectedCharacter then return end
+    local state = Entity(vehicle).state
+    if state.keys[selectedCharacter.id] then
+        return true
     end
     return false
 end
@@ -170,26 +175,41 @@ function getLastGarageVeh()
     return vehicle
 end
 
-function getClosestVehicles(ownedOnly)
+function getClosestVehicle(ownedOnly)
+    if not selectedCharacter then return end
+    
     local vehicle
-    local closestVehDist = 500.0
-    for _, veh in pairs(garageVehicles) do
-        local vehDist = #(GetEntityCoords(veh.veh) - pedCoords)
-        if vehDist < closestVehDist then
-            closestVehDist = vehDist
-            vehicle = veh
-        end
-    end
-    if not ownedOnly then
-        for _, veh in pairs(accessVehicles) do
-            local vehDist = #(GetEntityCoords(veh.veh) - pedCoords)
-            if vehDist < closestVehDist then
-                closestVehDist = vehDist
-                vehicle = veh
+    local closestVehDist = 100.0
+    local vehicleCoords
+
+    local vehicles = lib.getNearbyVehicles(pedCoords, 100, true)
+
+    for _, veh in pairs(vehicles) do
+        local state = Entity(veh.vehicle).state
+        local keys = state.keys
+        if keys then
+            if ownedOnly then
+                local owner = state.owner
+                if owner and owner == selectedCharacter.id and keys[selectedCharacter.id] then
+                    local vehDist = #(veh.coords - pedCoords)
+                    if vehDist < closestVehDist then
+                        vehicle = veh.vehicle
+                        closestVehDist = #(veh.coords - pedCoords)
+                        vehicleCoords = veh.coords
+                    end
+                end
+            elseif keys[selectedCharacter.id] then
+                local vehDist = #(veh.coords - pedCoords)
+                if vehDist < closestVehDist then
+                    vehicle = veh.vehicle
+                    closestVehDist = #(veh.coords - pedCoords)
+                    vehicleCoords = veh.coords
+                end
             end
         end
     end
-    return vehicle, closestVehDist
+
+    return vehicle, closestVehDist, vehicleCoords
 end
 
 function lockpickVehicle()
