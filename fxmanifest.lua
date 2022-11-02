@@ -33,7 +33,7 @@ exports {
     "getVehicleOwned",
     "isVehicleOwned",
     "hasVehicleKeys",
-    "getClosestVehicles",
+    "getClosestVehicle",
     "getVehicleLocked",
     "setVehicleLocked",
     "lockpickVehicle",
