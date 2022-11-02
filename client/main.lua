@@ -266,7 +266,7 @@ AddStateBagChangeHandler("props", nil, function(bagName, key, value, reserved, r
         local highestNum = 0
         for _, gVeh in pairs(garageVehicles) do
             if gVeh.last > highestNum then
-                highestNum = 0
+                highestNum = gVeh.last
             end
         end
         garageVehicles[entity] = {}
