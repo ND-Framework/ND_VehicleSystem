@@ -1,16 +1,17 @@
-local NDCore = exports["ND_Core"]:GetCoreObject()
-local selectedCharacter = NDCore.Functions.GetSelectedCharacter()
-local notified = false
+NDCore = exports["ND_Core"]:GetCoreObject()
+selectedCharacter = NDCore.Functions.GetSelectedCharacter()
+
 worker = nil
 ped = nil
 pedCoords = nil
 garageVehicles = {}
-accessVehicles = {}
 garageOpen = false
 
 crusieControl = false
 cruiseSpeed = 0
 vehSpeed = 0
+
+local notified = false
 
 local vehicleClassNotDisableAirControl = {
     [8] = true, --motorcycle
@@ -27,6 +28,7 @@ end
 
 RegisterNetEvent("ND:setCharacter", function(character)
     if selectedCharacter and character.id == selectedCharacter.id then return end
+    selectedCharacter = character
     TriggerServerEvent("ND_VehicleSystem:getVehicles")
 end)
 
@@ -216,23 +218,9 @@ CreateThread(function()
     end
 end)
 
-RegisterNetEvent("ND_VehicleSystem:giveKeys", function(vehid)
-    local veh = NetworkGetEntityFromNetworkId(vehid)
-    if not veh then return end
-    accessVehicles[veh] = {}
-    accessVehicles[veh].veh = veh
-    lib.notify({
-        title = "Receive keys",
-        description = "You've received keys to: " .. GetVehicleNumberPlateText(veh) .. ".",
-        type = "inform",
-        position = "bottom-right",
-        duration = 3000
-    })
-end)
-
 RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
-    local veh = NetworkGetEntityFromNetworkId(netid)
-    if not DoesEntityExist(veh) then return end
+    local veh = NetworkDoesNetworkIdExist(netid) and NetworkGetEntityFromNetworkId(netid)
+    if not veh then return end
     SetVehicleAlarmTimeLeft(veh, 1)
     SetVehicleAlarm(veh, true)
     StartVehicleAlarm(veh)
@@ -240,6 +228,33 @@ RegisterNetEvent("ND_VehicleSystem:syncAlarm", function(netid, success, action)
     if action == "lockpick" then
         setVehicleLocked(veh, false)
     end
+end)
+
+RegisterNetEvent("ND_VehicleSystem:removeBlip", function(netid)
+    local veh = NetworkDoesNetworkIdExist(netid) and NetworkGetEntityFromNetworkId(netid)
+    if not veh then return end
+    local blip = GetBlipFromEntity(veh)
+    RemoveBlip(blip)
+end)
+
+AddStateBagChangeHandler("owner", nil, function(bagName, key, value, reserved, replicated)
+    if not value then return end
+    Wait(50)
+    
+    if value ~= selectedCharacter.id then return end
+
+    local netId = tonumber(bagName:gsub("entity:", ""), 10)
+    local entity = NetworkDoesNetworkIdExist(netId) and NetworkGetEntityFromNetworkId(netId)
+    if not entity then return end
+
+    local blip = AddBlipForEntity(entity)
+    SetBlipSprite(blip, getVehicleBlipSprite(entity))
+    SetBlipColour(blip, 0)
+    SetBlipScale(blip, 0.8)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Personal vehicle")
+    EndTextCommandSetBlipName(blip)
 end)
 
 AddStateBagChangeHandler("props", nil, function(bagName, key, value, reserved, replicated)
@@ -262,6 +277,8 @@ AddStateBagChangeHandler("props", nil, function(bagName, key, value, reserved, r
         lib.setVehicleProperties(entity, value)
         SetVehicleOnGroundProperly(entity)
         setVehicleOwned(entity, true)
+        setVehicleLocked(entity, true)
+        SetVehicleEngineOn(entity, false, true, true)
 
         local highestNum = 0
         for _, gVeh in pairs(garageVehicles) do
@@ -272,8 +289,6 @@ AddStateBagChangeHandler("props", nil, function(bagName, key, value, reserved, r
         garageVehicles[entity] = {}
         garageVehicles[entity].veh = entity
         garageVehicles[entity].last = highestNum + 1
-        setVehicleLocked(entity, true)
-        SetVehicleEngineOn(entity, false, true, true)
 
         local blip = AddBlipForEntity(entity)
         SetBlipSprite(blip, getVehicleBlipSprite(entity))
