@@ -124,8 +124,36 @@ function giveKeys(vehicle, source, target)
     })
 end
 
+function isParkingAvailable(source, coords)
+    local tries = 1
+    while tries < #coords do
+        Wait(300)
+        local coord = coords[math.random(1, #coords)]
+        local available = lib.callback.await("ND_VehicleSystem:getParkedVehicle", source, vector3(coord.x, coord.y, coord.z))
+        if available then
+            return coord
+        end
+        tries += 1
+    end
+    return false
+end
+
 function spawnOwnedVehicle(source, vehicleID, coords)
     local player = NDCore.Functions.GetPlayer(source)
+    local spawnCoords = coords
+    if type(coords) == "table" then
+        spawnCoords = isParkingAvailable(source, coords)
+        if not spawnCoords then
+            TriggerClientEvent("ox_lib:notify", source, {
+                title = "Can't bring out vehicle",
+                description = "No parking spot available for your vehicle. It's still in your garage.",
+                type = "error",
+                position = "bottom",
+                duration = 4000
+            })
+            return false
+        end
+    end
     local vehicles = getVehicles(player.id)
 
     for _, vehicle in pairs(vehicles) do
@@ -139,7 +167,7 @@ function spawnOwnedVehicle(source, vehicleID, coords)
             end
             local entityType = GetVehicleType(tempVehicle)
             DeleteEntity(tempVehicle)
-            local veh = CreateVehicleServerSetter(vehicle.properties.model, entityType, coords.x, coords.y, coords.z, coords.w)
+            local veh = CreateVehicleServerSetter(vehicle.properties.model, entityType, spawnCoords.x, spawnCoords.y, spawnCoords.z, spawnCoords.w)
             while not DoesEntityExist(veh) do
                 Wait(0)
             end

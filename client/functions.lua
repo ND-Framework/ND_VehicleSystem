@@ -1,3 +1,10 @@
+lib.callback.register("ND_VehicleSystem:getParkedVehicle", function(coords)
+    local parkedVeh = lib.getNearbyVehicles(coords, 1.0, false)
+    if not parkedVeh or not next(parkedVeh) or not parkedVeh[1].vehicle then
+        return true
+    end
+end)
+
 function getPedSeat(ped, vehicle)
     for i = -1, 6 do
         local seat = GetPedInVehicleSeat(vehicle, i)
@@ -370,8 +377,7 @@ function createMenu(vehicles, garageType)
                 title = model,
                 onSelect = function(args)
                     local ped = PlayerPedId()
-                    local spawnLocation = garageLocation.vehicleSpawns[math.random(1, #garageLocation.vehicleSpawns)]
-                    TriggerServerEvent("ND_VehicleSystem:takeVehicle", vehicle, spawnLocation)
+                    TriggerServerEvent("ND_VehicleSystem:takeVehicle", vehicle, garageLocation.vehicleSpawns)
                 end,
                 metadata = {
                     {label = "Plate", value = vehicle.properties.plate},
