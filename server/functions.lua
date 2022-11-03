@@ -115,7 +115,7 @@ function giveKeys(vehicle, source, target)
         position = "bottom-right",
         duration = 4000
     })
-    TriggerClientEvent("ox_lib:notify", source, {
+    TriggerClientEvent("ox_lib:notify", target, {
         title = "Keys received",
         description = "Received vehicle keys to " .. GetVehicleNumberPlateText(vehicle) .. ".",
         type = "inform",
