@@ -80,7 +80,7 @@ end)
 
 CreateThread(function()
     local inVehcile = false
-    local blip
+    local carBlip
     local wait = 500
     local angle = 0.0
     while true do
@@ -89,6 +89,7 @@ CreateThread(function()
         local seat = getPedSeat(ped, veh)
 
         if veh ~= 0 and seat == -1 then
+            -- save wheels steering angle.
             local steeringAngle = GetVehicleSteeringAngle(veh)
             if steeringAngle > 10.0 or steeringAngle < -10.0 then
                 angle = steeringAngle
@@ -118,10 +119,11 @@ CreateThread(function()
         -- make blip transparent if in vehicle.
         if veh ~= 0 and isVehicleOwned(veh) then
             inVehcile = true
-            blip = GetBlipFromEntity(veh)
-            SetBlipAlpha(blip, 0)
+            carBlip = GetBlipFromEntity(veh)
+            SetBlipAlpha(carBlip, 0)
         elseif inVehcile then
-            SetBlipAlpha(blip, 255)
+            inVehcile = false
+            SetBlipAlpha(carBlip, 255)
         end
 
         -- check if ped is trying to enter a vehicle and lock if it's locked.
