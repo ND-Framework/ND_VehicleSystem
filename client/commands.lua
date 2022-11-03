@@ -2,9 +2,10 @@
 local allowLock = true
 RegisterCommand("+vehicleLocks", function()
     if GetVehiclePedIsEntering(ped) ~= 0 then return end
+    
     local vehicle, dist = getClosestVehicle(false)
     if not vehicle or not allowLock then return end
-    allowLock = false
+
     if dist > 25.0 then
         lib.notify({
             title = "No signal",
@@ -15,6 +16,8 @@ RegisterCommand("+vehicleLocks", function()
         })
         return
     end
+
+    allowLock = false
     local locked = not getVehicleLocked(vehicle)
     setVehicleLocked(vehicle, locked)
     if IsVehicleAlarmActivated(vehicle) then

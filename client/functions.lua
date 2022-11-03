@@ -185,7 +185,6 @@ function getClosestVehicle(ownedOnly)
     local vehicle
     local closestVehDist = 100.0
     local vehicleCoords
-
     local vehicles = lib.getNearbyVehicles(pedCoords, 100, true)
 
     for _, veh in pairs(vehicles) do
@@ -195,19 +194,21 @@ function getClosestVehicle(ownedOnly)
             if ownedOnly then
                 local owner = state.owner
                 if owner and owner == selectedCharacter.id and keys[selectedCharacter.id] then
-                    local vehDist = #(veh.coords - pedCoords)
+                    local vehCoords = GetEntityCoords(veh.vehicle)
+                    local vehDist = #(vehCoords - pedCoords)
                     if vehDist < closestVehDist then
                         vehicle = veh.vehicle
-                        closestVehDist = #(veh.coords - pedCoords)
-                        vehicleCoords = veh.coords
+                        closestVehDist = vehDist
+                        vehicleCoords = vehCoords
                     end
                 end
             elseif keys[selectedCharacter.id] then
-                local vehDist = #(veh.coords - pedCoords)
+                local vehCoords = GetEntityCoords(veh.vehicle)
+                local vehDist = #(vehCoords - pedCoords)
                 if vehDist < closestVehDist then
                     vehicle = veh.vehicle
-                    closestVehDist = #(veh.coords - pedCoords)
-                    vehicleCoords = veh.coords
+                    closestVehDist = vehDist
+                    vehicleCoords = vehCoords
                 end
             end
         end
