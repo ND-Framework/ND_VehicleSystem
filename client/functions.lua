@@ -148,7 +148,7 @@ end
 function isVehicleOwned(vehicle)
     if not selectedCharacter then return end
     local state = Entity(vehicle).state
-    if state.owner == selectedCharacter.id then
+    if state.owner and state.owner == selectedCharacter.id then
         return true
     end
     return false
@@ -157,7 +157,7 @@ end
 function hasVehicleKeys(vehicle)
     if not selectedCharacter then return end
     local state = Entity(vehicle).state
-    if state.keys[selectedCharacter.id] then
+    if state.keys and state.keys[selectedCharacter.id] then
         return true
     end
     return false
