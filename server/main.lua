@@ -33,8 +33,8 @@ end)
 
 RegisterNetEvent("ND_VehicleSystem:takeVehicle", function(selectedVehicle, coords)
     local src = source
-    spawnOwnedVehicle(src, selectedVehicle.id, coords)
-
+    local unparked = spawnOwnedVehicle(src, selectedVehicle.id, coords)
+    if not unparked then return end
     TriggerClientEvent("ox_lib:notify", src, {
         title = "Vehicle unparked",
         description = "Your vehicle can now be found in this parking lot.",
