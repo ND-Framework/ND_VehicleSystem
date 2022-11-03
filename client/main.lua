@@ -82,12 +82,21 @@ CreateThread(function()
     local inVehcile = false
     local blip
     local wait = 500
+    local angle = 0.0
     while true do
         Wait(wait)
         local veh = GetVehiclePedIsIn(ped)
         local seat = getPedSeat(ped, veh)
 
         if veh ~= 0 and seat == -1 then
+            local steeringAngle = GetVehicleSteeringAngle(veh)
+            if steeringAngle > 10.0 or steeringAngle < -10.0 then
+                angle = steeringAngle
+            end
+            if GetIsTaskActive(ped, 2) then
+                SetVehicleSteeringAngle(veh, angle)
+            end
+            
             -- disable vehicle air control.
             if config.disableVehicleAirControl and not vehicleClassNotDisableAirControl[GetVehicleClass(veh)] and (IsEntityInAir(veh) or IsEntityUpsidedown(veh)) then
                 wait = 0
