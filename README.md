@@ -25,6 +25,7 @@ This is a vehicle system for the ND Framework.
 |giveKeys|Give keys vehicle keys to a player.|int: **Vehicle entity**, int: **Player source**, int: **Target player source**.|
 |spawnOwnedVehicle|Spawn a vehicle the player owns.|int: **Player source**, int: **vehicle ID**, vec3: **Spawn coords**.|
 |returnVehicleToGarage|Give keys vehicle keys to a player.|int: **Player source**, int: **Vehicle entity**, table: **vehicle properties**.|
+|transferVehicle|Transfer a vehicle to another player.|int: **Vehicle database ID**, int: **Player source**, int: **Target player source**.|
 
 **Client:**
 |Export|Description|Parameter(s)|
@@ -37,4 +38,3 @@ This is a vehicle system for the ND Framework.
 |setVehicleLocked|Set the vehicle lock status.|int: **Vehicle entity**, boolean: **Locked or unlocked**.|
 |lockpickVehicle|Begin lockpicking a nearby vehicle, returns if successful or not.||
 |hotwireVehicle|Begin to hotwire current vehicle, returns if successful or not.||
-|transferVehicle|Transfer a vehicle to another player.|int: **Vehicle database ID**, int: **Player source**, int: **Target player source**.|
