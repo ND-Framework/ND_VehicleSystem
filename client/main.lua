@@ -300,15 +300,6 @@ AddStateBagChangeHandler("props", nil, function(bagName, key, value, reserved, r
         garageVehicles[entity] = {}
         garageVehicles[entity].veh = entity
         garageVehicles[entity].last = highestNum + 1
-
-        local blip = AddBlipForEntity(entity)
-        SetBlipSprite(blip, getVehicleBlipSprite(entity))
-        SetBlipColour(blip, 0)
-        SetBlipScale(blip, 0.8)
-        SetBlipAsShortRange(blip, true)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("Personal vehicle")
-        EndTextCommandSetBlipName(blip)
     end
 end)
 
