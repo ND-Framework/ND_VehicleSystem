@@ -12,6 +12,8 @@ This is a vehicle system for the ND Framework.
 * Disable vehicle air control.
 * Lock traffic & parked vehicles.
 * Cruise control.
+* Transfer ownership of vehicles.
+* Save vehicle wheel angle.
 
 ## Exports:
 
