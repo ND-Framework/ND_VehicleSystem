@@ -1,5 +1,5 @@
 lib.callback.register("ND_VehicleSystem:getParkedVehicle", function(coords)
-    local parkedVeh = lib.getNearbyVehicles(coords, 1.0, false)
+    local parkedVeh = lib.getNearbyVehicles(coords, 1.5, false)
     if not parkedVeh or not next(parkedVeh) or not parkedVeh[1].vehicle then
         return true
     end
