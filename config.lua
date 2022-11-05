@@ -1,7 +1,24 @@
 config = {
     randomUnlockedVehicleChance = 30, -- % chance of random vehicles being unlocked.
     disableVehicleAirControl = true,
+    useInventory = true, -- if false then lockpicking and hotwireing will be command based, read below for how to use ox inventory instead.
 }
+
+--[[
+    if you'd like to use ox inventory to make lockpicks an item add the code blow to your items.lua file.
+
+	["lockpick"] = {
+		label = "Lockpick",
+		weight = 160,
+		consume = 1,
+        stack = true,
+        close = true,
+		client = {
+            export = "ND_VehicleSystem.lockpick"
+		}
+	},
+    
+]]
 
 parkingLocations = {
     {

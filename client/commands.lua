@@ -140,15 +140,31 @@ TriggerEvent("chat:addSuggestion", "/givekeys", "Give keys to your current or la
 
 
 -- testing
-RegisterCommand("lockpick", function(source, args, rawCommand)
-    lockpickVehicle()
-end, false)
 
-RegisterCommand("hotwire", function(source, args, rawCommand)
-    hotwireVehicle()
-end, false)
-TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
-TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
+if config.useInventory then
+    exports("lockpick", function(data, slot)
+        local success, used = lockpickVehicle()
+
+        if not used then
+            success, used = hotwireVehicle()
+        end
+
+        if used then
+            exports.ox_inventory:useItem(data)
+        end
+    end)
+else
+    TriggerEvent("chat:addSuggestion", "/lockpick", "Lockpick a nearby vehicle door.", {})
+    RegisterCommand("lockpick", function(source, args, rawCommand)
+        lockpickVehicle()
+    end, false)
+
+    TriggerEvent("chat:addSuggestion", "/hotwire", "Hotwire the current vehicle.", {})
+    RegisterCommand("hotwire", function(source, args, rawCommand)
+        hotwireVehicle()
+    end, false)
+end
+
 
 RegisterCommand("test", function(source, args, rawCommand)
     local props = lib.getVehicleProperties(GetVehiclePedIsIn(ped))

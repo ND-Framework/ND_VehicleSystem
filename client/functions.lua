@@ -218,9 +218,9 @@ function getClosestVehicle(ownedOnly)
 end
 
 function lockpickVehicle()
-    if GetVehiclePedIsIn(ped) ~= 0 then return false end
+    if GetVehiclePedIsIn(ped) ~= 0 then return false, false end
     local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
-    if not veh then return false end
+    if not veh then return false, false end
 
     local finished = false
     local dificulties = {
@@ -242,24 +242,24 @@ function lockpickVehicle()
         if not success or not DoesEntityExist(veh) or #(pedCoords - GetEntityCoords(veh)) > 2.5 then
             TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
             finished = true
-            return false
+            return false, true
         end
         Wait(800)
     end
     
     finished = true
     local veh = lib.getClosestVehicle(pedCoords, 2.5, false)
-    if not veh then return false end
+    if not veh then return false, true end
     TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), true, "lockpick")
-    return true
+    return true, true
 end
 
 function hotwireVehicle()
     local veh = GetVehiclePedIsIn(ped)
-    if veh == 0 then return false end
+    if veh == 0 then return false, false end
 
     local seat = getPedSeat(ped, veh)
-    if seat ~= -1 then return false end
+    if seat ~= -1 then return false, false end
 
     local dificulties = {
         "easy",
@@ -275,17 +275,17 @@ function hotwireVehicle()
         if not success or not DoesEntityExist(veh) or GetVehiclePedIsIn(ped) == 0 then
             ClearPedTasks(ped)
             TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), false)
-            return false
+            return false, true
         end
         Wait(800)
     end
     ClearPedTasks(ped)
     
     veh = GetVehiclePedIsIn(ped)
-    if not veh then return false end
+    if not veh then return false, true end
     setVehicleEngine(veh, true)
     TriggerServerEvent("ND_VehicleSystem:syncAlarm", NetworkGetNetworkIdFromEntity(veh), true, "hotwire")
-    return true
+    return true, true
 end
 
 function checkGetVehicle(veh)
