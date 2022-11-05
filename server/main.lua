@@ -4,6 +4,7 @@ playerOwnedVehicles = {}
 RegisterNetEvent("ND_VehicleSystem:getVehicles", function()
     local src = source
     local player = NDCore.Functions.GetPlayer(src)
+    MySQL.query.await("UPDATE vehicles SET stored = ? WHERE owner = ?", {1, player.id})
     local vehicles = getVehicles(player.id)
     TriggerClientEvent("ND_VehicleSystem:returnVehicles", src, vehicles)
 end)
