@@ -164,10 +164,3 @@ else
         hotwireVehicle()
     end, false)
 end
-
-
-RegisterCommand("test", function(source, args, rawCommand)
-    local props = lib.getVehicleProperties(GetVehiclePedIsIn(ped))
-    props.class = GetVehicleClass(GetVehiclePedIsIn(ped))
-    TriggerServerEvent("test", props)
-end, false)
