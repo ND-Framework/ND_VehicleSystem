@@ -26,6 +26,7 @@ client_scripts {
 depedencies {
     "ox_lib",
     "ND_Core",
+    "/server:5904",
     "/gameBuild:2372" -- must be 2372 or higher.
 }
 
