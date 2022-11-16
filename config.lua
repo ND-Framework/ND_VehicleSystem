@@ -22,6 +22,19 @@ config = {
 
 parkingLocations = {
     {
+        garageType = "land",
+        jobs = {"SAHP", "LSPD", "BCSO"},
+        ped = vector4(452.83, -1027.79, 28.54, 2.49),
+        vehicleSpawns = {
+            vector4(452.83, -1027.79, 28.54, 2.49),
+            vector4(446.19, -1025.47, 28.24, 185.96),
+            vector4(438.75, -1026.09, 28.38, 184.29),
+            vector4(434.98, -1026.61, 28.46, 185.99),
+            vector4(431.26, -1027.31, 28.53, 185.59),
+            vector4(427.52, -1026.84, 28.58, 184.25)
+        }
+    },
+    {
         garageType = "plane",
         ped = vector4(-941.05, -2966.04, 13.95, 136.06),
         vehicleSpawns = {

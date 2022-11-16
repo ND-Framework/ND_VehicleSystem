@@ -6,7 +6,7 @@ ped = nil
 pedCoords = nil
 garageVehicles = {}
 garageOpen = false
-
+garageBlips = {}
 crusieControl = false
 cruiseSpeed = 0
 vehSpeed = 0
@@ -30,6 +30,31 @@ RegisterNetEvent("ND:setCharacter", function(character)
     if selectedCharacter and character.id == selectedCharacter.id then return end
     selectedCharacter = character
     TriggerServerEvent("ND_VehicleSystem:getVehicles")
+
+    for _, blip in pairs(garageBlips) do
+        RemoveBlip(blip)
+    end
+
+    local sprite = {
+        ["water"] = 356,
+        ["heli"] = 360,
+        ["plane"] = 359,
+        ["land"] = 357
+    }
+
+    for _, location in pairs(parkingLocations) do
+        if jobHasAccess(selectedCharacter.job, location) then
+            local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
+            garageBlips[#garageBlips+1] = blip
+            SetBlipSprite(blip, sprite[location.garageType])
+            SetBlipColour(blip, 3)
+            SetBlipScale(blip, 0.7)
+            SetBlipAsShortRange(blip, true)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString("Parking garage (" .. location.garageType .. ")")
+            EndTextCommandSetBlipName(blip)
+        end
+    end
 end)
 
 RegisterNetEvent("ND_VehicleSystem:returnVehicles", function(vehicles)
@@ -166,14 +191,17 @@ CreateThread(function()
     }
 
     for _, location in pairs(parkingLocations) do
-        local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
-        SetBlipSprite(blip, sprite[location.garageType])
-        SetBlipColour(blip, 3)
-        SetBlipScale(blip, 0.7)
-        SetBlipAsShortRange(blip, true)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("Parking garage (" .. location.garageType .. ")")
-        EndTextCommandSetBlipName(blip)
+        if jobHasAccess(selectedCharacter.job, location) then
+            local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
+            garageBlips[#garageBlips+1] = blip
+            SetBlipSprite(blip, sprite[location.garageType])
+            SetBlipColour(blip, 3)
+            SetBlipScale(blip, 0.7)
+            SetBlipAsShortRange(blip, true)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString("Parking garage (" .. location.garageType .. ")")
+            EndTextCommandSetBlipName(blip)
+        end
     end
 
     local cachedPed = PlayerPedId()
@@ -191,7 +219,7 @@ CreateThread(function()
         local nearParking = false
         for _, location in pairs(parkingLocations) do
             local dist = #(pedCoords - vector3(location.ped.x, location.ped.y, location.ped.z))
-            if dist < 80.0 then
+            if dist < 80.0 and jobHasAccess(selectedCharacter.job, location) then
                 nearParking = true
                 if not worker then
                     if not location.pedAppearance then

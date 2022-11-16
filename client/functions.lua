@@ -5,6 +5,14 @@ lib.callback.register("ND_VehicleSystem:getParkedVehicle", function(coords)
     end
 end)
 
+function jobHasAccess(job, garage)
+    if not garage.jobs then return true end
+    for _, jobName in pairs(garage.jobs) do
+        if job == jobName then return true end
+    end
+    return false
+end
+
 function getPedSeat(ped, vehicle)
     for i = -1, 6 do
         local seat = GetPedInVehicleSeat(vehicle, i)
