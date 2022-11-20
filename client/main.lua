@@ -190,17 +190,19 @@ CreateThread(function()
         ["land"] = 357
     }
 
-    for _, location in pairs(parkingLocations) do
-        if jobHasAccess(selectedCharacter.job, location) then
-            local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
-            garageBlips[#garageBlips+1] = blip
-            SetBlipSprite(blip, sprite[location.garageType])
-            SetBlipColour(blip, 3)
-            SetBlipScale(blip, 0.7)
-            SetBlipAsShortRange(blip, true)
-            BeginTextCommandSetBlipName("STRING")
-            AddTextComponentString("Parking garage (" .. location.garageType .. ")")
-            EndTextCommandSetBlipName(blip)
+    if selectedCharacter then
+        for _, location in pairs(parkingLocations) do
+            if jobHasAccess(selectedCharacter.job, location) then
+                local blip = AddBlipForCoord(location.ped.x, location.ped.y, location.ped.z)
+                garageBlips[#garageBlips+1] = blip
+                SetBlipSprite(blip, sprite[location.garageType])
+                SetBlipColour(blip, 3)
+                SetBlipScale(blip, 0.7)
+                SetBlipAsShortRange(blip, true)
+                BeginTextCommandSetBlipName("STRING")
+                AddTextComponentString("Parking garage (" .. location.garageType .. ")")
+                EndTextCommandSetBlipName(blip)
+            end
         end
     end
 
