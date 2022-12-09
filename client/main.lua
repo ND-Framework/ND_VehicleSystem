@@ -221,7 +221,7 @@ CreateThread(function()
         local nearParking = false
         for _, location in pairs(parkingLocations) do
             local dist = #(pedCoords - vector3(location.ped.x, location.ped.y, location.ped.z))
-            if dist < 80.0 and jobHasAccess(selectedCharacter.job, location) then
+            if selectedCharacter and dist < 80.0 and jobHasAccess(selectedCharacter.job, location) then
                 nearParking = true
                 if not worker then
                     if not location.pedAppearance then
