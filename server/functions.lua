@@ -207,3 +207,19 @@ function returnVehicleToGarage(source, veh, properties)
     end
     return false
 end
+
+function saveVehiclePreperties(source, veh, properties)
+    local player = NDCore.Functions.GetPlayer(source)
+    if not DoesEntityExist(veh) then return end
+
+    local vehID = Entity(veh).state.id
+    local vehicles = getVehicles(player.id)
+    
+    for _, vehicle in pairs(vehicles) do
+        if vehicle.owner == player.id and vehicle.id == vehID then
+            MySQL.query.await("UPDATE vehicles SET properties = ? WHERE id = ?", {json.encode(properties), vehID})
+            return true
+        end
+    end
+    return false
+end

@@ -25,6 +25,7 @@
 |spawnOwnedVehicle|Spawn a vehicle the player owns.|int: **Player source**, int: **vehicle ID**, vec3: **Spawn coords**.|
 |returnVehicleToGarage|Give keys vehicle keys to a player.|int: **Player source**, int: **Vehicle entity**, table: **vehicle properties**.|
 |transferVehicle|Transfer a vehicle to another player.|int: **Vehicle database ID**, int: **Player source**, int: **Target player source**.|
+|saveVehicleProperties|Save the vehicle properties.|int: **Player source**, int: **Vehicle entity**, table: **vehicle properties**.|
 
 **Client:**
 |Export|Description|Parameter(s)|
