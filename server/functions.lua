@@ -124,6 +124,16 @@ function giveKeys(vehicle, source, target)
     })
 end
 
+function giveAccess(source, vehicle)
+    local state = Entity(vehicle).state
+    if not state then return end
+
+    if not state.keys then
+        state.keys = {}
+    end
+    state.keys[source] = true
+end
+
 function isParkingAvailable(source, coords)
     local tries = 1
     while tries < #coords do

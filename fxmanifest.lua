@@ -47,5 +47,6 @@ server_exports {
     "giveKeys",
     "spawnOwnedVehicle",
     "returnVehicleToGarage",
-    "saveVehicleProperties"
+    "saveVehicleProperties",
+    "giveAccess"
 }
