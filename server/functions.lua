@@ -128,10 +128,18 @@ function giveAccess(source, vehicle)
     local state = Entity(vehicle).state
     if not state then return end
 
+    local player = NDCore.Functions.GetPlayer(source)
+    if not player then return end
+
     if not state.keys then
-        state.keys = {}
+        state.keys = {
+            [player.id] = true
+        }
+    else
+        local keys = state.keys
+        keys[player.id] = true
+        state.keys = keys
     end
-    state.keys[source] = true
 end
 
 function isParkingAvailable(source, coords)

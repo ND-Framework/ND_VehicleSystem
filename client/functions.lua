@@ -169,10 +169,7 @@ end
 function hasVehicleKeys(vehicle)
     if not selectedCharacter then return end
     local state = Entity(vehicle).state
-    if state.keys and state.keys[selectedCharacter.id] then
-        return true
-    end
-    return false
+    return (state.keys and state.keys[selectedCharacter.id])
 end
 
 function getLastGarageVeh()
