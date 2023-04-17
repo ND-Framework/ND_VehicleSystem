@@ -155,11 +155,7 @@ CreateThread(function()
         veh = GetVehiclePedIsTryingToEnter(ped)
         if veh ~= 0 then
             local locked = getVehicleLocked(veh)      
-            if locked then
-                SetVehicleDoorsLocked(veh, 2)
-            else
-                SetVehicleDoorsLocked(veh, 1)
-            end
+            setVehicleLocked(veh, locked)
 
             -- lock traffic vehicles
             if not isVehicleOwned(veh) and not locked and not getVehicleStolen(veh) and not IsVehicleDoorFullyOpen(veh, -1) then
@@ -276,6 +272,17 @@ RegisterNetEvent("ND_VehicleSystem:removeBlip", function(netid)
     if not veh then return end
     local blip = GetBlipFromEntity(veh)
     RemoveBlip(blip)
+end)
+
+RegisterNetEvent("ND_VehicleSystem:setOwnedIfNot", function(netid)
+    local tries = 0
+    local veh = NetworkDoesNetworkIdExist(netid) and NetworkGetEntityFromNetworkId(netid)
+    while not veh and tries < 5 do
+        Wait(100)
+        veh = NetworkDoesNetworkIdExist(netid) and NetworkGetEntityFromNetworkId(netid)
+    end
+    setVehicleOwned(veh, true)
+    setVehicleLocked(veh, true)
 end)
 
 AddStateBagChangeHandler("owner", nil, function(bagName, key, value, reserved, replicated)
