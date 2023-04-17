@@ -140,6 +140,8 @@ function giveAccess(source, vehicle)
         keys[player.id] = true
         state.keys = keys
     end
+
+    TriggerClientEvent("ND_VehicleSystem:setOwnedIfNot", source, NetworkGetNetworkIdFromEntity(vehicle))
 end
 
 function isParkingAvailable(source, coords)
