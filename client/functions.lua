@@ -45,10 +45,7 @@ function getVehicleOwned(veh)
 end
 
 function getDoorLock(status)
-    if status then
-        return 2
-    end
-    return 1
+    return status and 2 or 1
 end
 
 function setVehicleLocked(veh, status)
@@ -57,10 +54,8 @@ function setVehicleLocked(veh, status)
 end
 
 function getVehicleLocked(veh)
-    if not DecorExistOn(veh, "ND_LOCKED_VEH") then
-        return false
-    end
-	return DecorGetBool(veh, "ND_LOCKED_VEH")
+    local status = GetVehicleDoorLockStatus(veh)
+    return (status > 1 and DecorExistOn(veh, "ND_LOCKED_VEH")) and DecorGetBool(veh, "ND_LOCKED_VEH")
 end
 
 function setVehicleEngine(veh, status)
@@ -69,10 +64,7 @@ function setVehicleEngine(veh, status)
 end
 
 function getVehicleEngine(veh)
-    if not DecorExistOn(veh, "ND_ENGINE_VEH") then
-        return false
-    end
-	return DecorGetBool(veh, "ND_ENGINE_VEH")
+    return DecorExistOn(veh, "ND_ENGINE_VEH") and DecorGetBool(veh, "ND_ENGINE_VEH")
 end
 
 function loadAnimDict(dict)
