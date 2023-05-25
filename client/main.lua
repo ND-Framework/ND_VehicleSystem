@@ -154,6 +154,10 @@ CreateThread(function()
         -- check if ped is trying to enter a vehicle and lock if it's locked.
         veh = GetVehiclePedIsTryingToEnter(ped)
         if veh ~= 0 then
+            if not DecorExistOn(veh, "ND_OWNED_VEH") then
+                return
+            end
+                
             local locked = getVehicleLocked(veh)      
             setVehicleLocked(veh, locked)
 
