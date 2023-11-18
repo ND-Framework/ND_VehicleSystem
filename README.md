@@ -1,6 +1,9 @@
 ![NDVehicleSystem](https://user-images.githubusercontent.com/86536434/200143075-342da3a9-2304-4001-a1d7-fdb59936f912.png)
 
 
+# Notice:
+This resource is outdated with NDCore v2, NDCore should now have a vehicle system in it.
+
 ## Features:
 * Own vehicles and store in garages.
 * Land vehicle garages, helicopters, boats, and planes.
